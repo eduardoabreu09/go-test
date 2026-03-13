@@ -2,6 +2,7 @@ package greetings
 
 import (
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -47,4 +48,18 @@ func TestHellosName(t *testing.T) {
 			t.Errorf("Map should contain %v", name)
 		}
 	}
+}
+
+func FuzzHello(f *testing.F) {
+	name := "Eduardo"
+	f.Add(name)
+	f.Fuzz(func(t *testing.T, orig string) {
+        msg, err := Hello(orig)
+		if orig == "" {
+			return
+		}
+		if !strings.Contains(msg, orig) || err != nil {
+			t.Errorf(`Hello() = %q, %v`, msg, err)
+		}
+    })
 }
