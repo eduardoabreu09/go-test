@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/eduardoabreu09/farm/internal/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -21,16 +22,18 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.RealIP)    // analytics and tracing
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer) // recover from crashes
-
-
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	userService := user.NewService()
+	userHandler := user.NewHandler(userService)
+
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
+	r.Get("/users", userHandler.ListUsers)
 
 	// http.ListenAndServe(":3333", r)
 
@@ -39,11 +42,11 @@ func (app *application) mount() http.Handler {
 
 func (app *application) run(h http.Handler) error {
 	server := &http.Server{
-		Addr: app.config.addr,
-		Handler: h,
+		Addr:         app.config.addr,
+		Handler:      h,
 		WriteTimeout: time.Minute,
-		ReadTimeout: time.Second * 10,
-		IdleTimeout: time.Minute,
+		ReadTimeout:  time.Second * 10,
+		IdleTimeout:  time.Minute,
 	}
 
 	log.Printf("server has started at %s", app.config.addr)
@@ -53,10 +56,9 @@ func (app *application) run(h http.Handler) error {
 
 type config struct {
 	addr string // URL:PORT
-	db dbConfig
+	db   dbConfig
 }
 
 type dbConfig struct {
 	connectionString string
 }
-

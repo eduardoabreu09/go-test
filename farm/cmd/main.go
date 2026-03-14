@@ -8,7 +8,7 @@ import (
 func main() {
 	cfg := config{
 		addr: ":8080",
-		db: dbConfig{},
+		db:   dbConfig{},
 	}
 	api := application{
 		config: cfg,
@@ -23,3 +23,4 @@ func main() {
 		os.Exit(1)
 	}
 }
+
