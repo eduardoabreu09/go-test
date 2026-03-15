@@ -8,7 +8,9 @@ import (
 func main() {
 	cfg := config{
 		addr: ":8080",
-		db:   dbConfig{},
+		db: dbConfig{
+			connectionString: "host=localhost user=postgres password=admin dbname=farm sslmode=disabled",
+		},
 	}
 	api := application{
 		config: cfg,
@@ -23,4 +25,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-
