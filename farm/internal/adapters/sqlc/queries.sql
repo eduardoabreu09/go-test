@@ -11,3 +11,20 @@ INSERT INTO users (
   $1, $2
 )
 RETURNING *;
+
+-- name: GetFirmwares :many
+SELECT * FROM firmware;
+
+-- name: GetFirmwareByVersion :one
+SELECT * FROM firmware WHERE version = $1 LIMIT 1;
+
+-- name: GetLastFirmware :one
+SELECT * FROM firmware ORDER BY created_at DESC  LIMIT 1;
+
+-- name: CreateFirmware :one
+INSERT INTO firmware (
+  version, url
+) VALUES (
+  $1, $2
+)
+RETURNING *;

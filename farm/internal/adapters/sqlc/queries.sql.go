@@ -9,6 +9,27 @@ import (
 	"context"
 )
 
+const createFirmware = `-- name: CreateFirmware :one
+INSERT INTO firmware (
+  version, url
+) VALUES (
+  $1, $2
+)
+RETURNING version, url, created_at
+`
+
+type CreateFirmwareParams struct {
+	Version string `json:"version"`
+	Url     string `json:"url"`
+}
+
+func (q *Queries) CreateFirmware(ctx context.Context, arg CreateFirmwareParams) (Firmware, error) {
+	row := q.db.QueryRow(ctx, createFirmware, arg.Version, arg.Url)
+	var i Firmware
+	err := row.Scan(&i.Version, &i.Url, &i.CreatedAt)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   name, email
@@ -32,6 +53,52 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.CreatedAt,
 	)
+	return i, err
+}
+
+const getFirmwareByVersion = `-- name: GetFirmwareByVersion :one
+SELECT version, url, created_at FROM firmware WHERE version = $1 LIMIT 1
+`
+
+func (q *Queries) GetFirmwareByVersion(ctx context.Context, version string) (Firmware, error) {
+	row := q.db.QueryRow(ctx, getFirmwareByVersion, version)
+	var i Firmware
+	err := row.Scan(&i.Version, &i.Url, &i.CreatedAt)
+	return i, err
+}
+
+const getFirmwares = `-- name: GetFirmwares :many
+SELECT version, url, created_at FROM firmware
+`
+
+func (q *Queries) GetFirmwares(ctx context.Context) ([]Firmware, error) {
+	rows, err := q.db.Query(ctx, getFirmwares)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Firmware
+	for rows.Next() {
+		var i Firmware
+		if err := rows.Scan(&i.Version, &i.Url, &i.CreatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLastFirmware = `-- name: GetLastFirmware :one
+SELECT version, url, created_at FROM firmware ORDER BY created_at DESC  LIMIT 1
+`
+
+func (q *Queries) GetLastFirmware(ctx context.Context) (Firmware, error) {
+	row := q.db.QueryRow(ctx, getLastFirmware)
+	var i Firmware
+	err := row.Scan(&i.Version, &i.Url, &i.CreatedAt)
 	return i, err
 }
 

@@ -68,5 +68,5 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.Write(w, http.StatusOK, user)
+	json.Write(w, http.StatusCreated, user)
 }

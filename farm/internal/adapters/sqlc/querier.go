@@ -9,7 +9,11 @@ import (
 )
 
 type Querier interface {
+	CreateFirmware(ctx context.Context, arg CreateFirmwareParams) (Firmware, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	GetFirmwareByVersion(ctx context.Context, version string) (Firmware, error)
+	GetFirmwares(ctx context.Context) ([]Firmware, error)
+	GetLastFirmware(ctx context.Context) (Firmware, error)
 	GetUserById(ctx context.Context, id int64) (User, error)
 	GetUsers(ctx context.Context) ([]User, error)
 }

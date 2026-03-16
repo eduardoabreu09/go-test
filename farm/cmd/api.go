@@ -6,6 +6,7 @@ import (
 	"time"
 
 	repo "github.com/eduardoabreu09/farm/internal/adapters/sqlc"
+	"github.com/eduardoabreu09/farm/internal/firmware"
 	"github.com/eduardoabreu09/farm/internal/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -31,15 +32,29 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	repo := repo.New(app.ctx)
+
+	// User
 	userService := user.NewService(repo)
 	userHandler := user.NewHandler(userService)
+
+	// Firmware
+	firmwareService := firmware.NewService(repo)
+	firmwareHandler := firmware.NewHandler(firmwareService)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
+
+	// User Endpoints
 	r.Get("/users", userHandler.ListUsers)
 	r.Get("/users/{id}", userHandler.GetUserById)
 	r.Post("/users", userHandler.CreateUser)
+
+	// Firmware Endpoints
+	r.Get("/firmwares", firmwareHandler.ListFirmwares)
+	r.Get("/firmwares/last", firmwareHandler.GetLastFirmware)
+	r.Get("/firmwares/{version}", firmwareHandler.GetFirmwareByVersion)
+	r.Post("/firmwares", firmwareHandler.CreateFirmware)
 
 	return r
 }
