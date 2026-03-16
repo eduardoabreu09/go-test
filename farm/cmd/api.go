@@ -39,6 +39,7 @@ func (app *application) mount() http.Handler {
 	})
 	r.Get("/users", userHandler.ListUsers)
 	r.Get("/users/{id}", userHandler.GetUserById)
+	r.Post("/users", userHandler.CreateUser)
 
 	return r
 }

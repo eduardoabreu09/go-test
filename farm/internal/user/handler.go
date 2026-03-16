@@ -1,9 +1,11 @@
 package user
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
+	repo "github.com/eduardoabreu09/farm/internal/adapters/sqlc"
 	"github.com/eduardoabreu09/farm/internal/error"
 	"github.com/eduardoabreu09/farm/internal/json"
 	"github.com/go-chi/chi/v5"
@@ -39,6 +41,30 @@ func (h *handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.GetUserById(r.Context(), id)
 	if err != nil {
 		error.InternalServerError(w, err)
+		return
+	}
+
+	json.Write(w, http.StatusOK, user)
+}
+
+func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var userDTO repo.CreateUserParams
+	err := json.Read(r, &userDTO)
+	if err != nil {
+		error.BadRequest(w, err)
+		return
+	}
+
+	user, err := h.service.CreateUser(r.Context(), userDTO)
+	if err != nil {
+		log.Println(err)
+
+		switch err {
+		case ErrNameIsEmpty, ErrEmailIsEmpty, ErrEmailIsInvalid:
+			error.BadRequest(w, err)
+		default:
+			error.InternalServerError(w, err)
+		}
 		return
 	}
 
