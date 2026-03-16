@@ -34,6 +34,7 @@ func main() {
 
 	api := application{
 		config: cfg,
+		ctx:    conn,
 	}
 
 	if err := api.run(api.mount()); err != nil {

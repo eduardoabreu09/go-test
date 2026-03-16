@@ -5,13 +5,16 @@ import (
 	"net/http"
 	"time"
 
+	repo "github.com/eduardoabreu09/farm/internal/adapters/sqlc"
 	"github.com/eduardoabreu09/farm/internal/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
 )
 
 type application struct {
 	config config
+	ctx    *pgx.Conn
 }
 
 func (app *application) mount() http.Handler {
@@ -27,15 +30,15 @@ func (app *application) mount() http.Handler {
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	userService := user.NewService()
+	repo := repo.New(app.ctx)
+	userService := user.NewService(repo)
 	userHandler := user.NewHandler(userService)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
 	r.Get("/users", userHandler.ListUsers)
-
-	// http.ListenAndServe(":3333", r)
+	r.Get("/users/{id}", userHandler.GetUserById)
 
 	return r
 }
