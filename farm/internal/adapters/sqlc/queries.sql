@@ -28,3 +28,11 @@ INSERT INTO firmware (
   $1, $2
 )
 RETURNING *;
+
+-- name: CreateFarm :one
+INSERT INTO farm (
+  firmware_version
+) VALUES (
+  $1
+)
+RETURNING *;

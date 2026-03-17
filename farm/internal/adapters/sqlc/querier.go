@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	CreateFarm(ctx context.Context, firmwareVersion string) (Farm, error)
 	CreateFirmware(ctx context.Context, arg CreateFirmwareParams) (Firmware, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetFirmwareByVersion(ctx context.Context, version string) (Firmware, error)

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	repo "github.com/eduardoabreu09/farm/internal/adapters/sqlc"
+	"github.com/eduardoabreu09/farm/internal/farm"
 	"github.com/eduardoabreu09/farm/internal/firmware"
 	"github.com/eduardoabreu09/farm/internal/user"
 	"github.com/go-chi/chi/v5"
@@ -41,6 +42,10 @@ func (app *application) mount() http.Handler {
 	firmwareService := firmware.NewService(repo)
 	firmwareHandler := firmware.NewHandler(firmwareService)
 
+	// Farm
+	farmService := farm.NewService(repo)
+	farmHandler := farm.NewHandler(farmService)
+
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
@@ -55,6 +60,9 @@ func (app *application) mount() http.Handler {
 	r.Get("/firmwares/last", firmwareHandler.GetLastFirmware)
 	r.Get("/firmwares/{version}", firmwareHandler.GetFirmwareByVersion)
 	r.Post("/firmwares", firmwareHandler.CreateFirmware)
+
+	// Farm Endpoints
+	r.Post("/farm", farmHandler.CreateFarm)
 
 	return r
 }

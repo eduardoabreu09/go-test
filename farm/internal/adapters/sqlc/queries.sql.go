@@ -9,6 +9,27 @@ import (
 	"context"
 )
 
+const createFarm = `-- name: CreateFarm :one
+INSERT INTO farm (
+  firmware_version
+) VALUES (
+  $1
+)
+RETURNING id, firmware_version, created_at, updated_at
+`
+
+func (q *Queries) CreateFarm(ctx context.Context, firmwareVersion string) (Farm, error) {
+	row := q.db.QueryRow(ctx, createFarm, firmwareVersion)
+	var i Farm
+	err := row.Scan(
+		&i.ID,
+		&i.FirmwareVersion,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createFirmware = `-- name: CreateFirmware :one
 INSERT INTO firmware (
   version, url

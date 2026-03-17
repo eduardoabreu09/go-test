@@ -8,6 +8,13 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Farm struct {
+	ID              int64              `json:"id"`
+	FirmwareVersion string             `json:"firmware_version"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Firmware struct {
 	Version   string             `json:"version"`
 	Url       string             `json:"url"`
