@@ -77,6 +77,60 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteFarmById = `-- name: DeleteFarmById :exec
+DELETE FROM farm WHERE id = $1
+`
+
+func (q *Queries) DeleteFarmById(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteFarmById, id)
+	return err
+}
+
+const getFarmById = `-- name: GetFarmById :one
+SELECT id, firmware_version, created_at, updated_at FROM farm WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetFarmById(ctx context.Context, id int64) (Farm, error) {
+	row := q.db.QueryRow(ctx, getFarmById, id)
+	var i Farm
+	err := row.Scan(
+		&i.ID,
+		&i.FirmwareVersion,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getFarms = `-- name: GetFarms :many
+SELECT id, firmware_version, created_at, updated_at FROM farm
+`
+
+func (q *Queries) GetFarms(ctx context.Context) ([]Farm, error) {
+	rows, err := q.db.Query(ctx, getFarms)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Farm
+	for rows.Next() {
+		var i Farm
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirmwareVersion,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFirmwareByVersion = `-- name: GetFirmwareByVersion :one
 SELECT version, url, created_at FROM firmware WHERE version = $1 LIMIT 1
 `
@@ -166,4 +220,28 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateFarmVersion = `-- name: UpdateFarmVersion :one
+UPDATE farm
+  set firmware_version = $2
+WHERE id = $1
+RETURNING id, firmware_version, created_at, updated_at
+`
+
+type UpdateFarmVersionParams struct {
+	ID              int64  `json:"id"`
+	FirmwareVersion string `json:"firmware_version"`
+}
+
+func (q *Queries) UpdateFarmVersion(ctx context.Context, arg UpdateFarmVersionParams) (Farm, error) {
+	row := q.db.QueryRow(ctx, updateFarmVersion, arg.ID, arg.FirmwareVersion)
+	var i Farm
+	err := row.Scan(
+		&i.ID,
+		&i.FirmwareVersion,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

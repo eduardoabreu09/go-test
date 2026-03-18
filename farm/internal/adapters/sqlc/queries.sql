@@ -36,3 +36,18 @@ INSERT INTO farm (
   $1
 )
 RETURNING *;
+
+-- name: GetFarms :many
+SELECT * FROM farm;
+
+-- name: GetFarmById :one
+SELECT * FROM farm WHERE id = $1 LIMIT 1;
+
+-- name: DeleteFarmById :exec
+DELETE FROM farm WHERE id = $1;
+
+-- name: UpdateFarmVersion :one
+UPDATE farm
+  set firmware_version = $2
+WHERE id = $1
+RETURNING *;

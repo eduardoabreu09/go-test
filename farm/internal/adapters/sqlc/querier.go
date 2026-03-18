@@ -12,11 +12,15 @@ type Querier interface {
 	CreateFarm(ctx context.Context, firmwareVersion string) (Farm, error)
 	CreateFirmware(ctx context.Context, arg CreateFirmwareParams) (Firmware, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteFarmById(ctx context.Context, id int64) error
+	GetFarmById(ctx context.Context, id int64) (Farm, error)
+	GetFarms(ctx context.Context) ([]Farm, error)
 	GetFirmwareByVersion(ctx context.Context, version string) (Firmware, error)
 	GetFirmwares(ctx context.Context) ([]Firmware, error)
 	GetLastFirmware(ctx context.Context) (Firmware, error)
 	GetUserById(ctx context.Context, id int64) (User, error)
 	GetUsers(ctx context.Context) ([]User, error)
+	UpdateFarmVersion(ctx context.Context, arg UpdateFarmVersionParams) (Farm, error)
 }
 
 var _ Querier = (*Queries)(nil)

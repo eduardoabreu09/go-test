@@ -62,7 +62,11 @@ func (app *application) mount() http.Handler {
 	r.Post("/firmwares", firmwareHandler.CreateFirmware)
 
 	// Farm Endpoints
+	r.Get("/farm", farmHandler.GetFarms)
+	r.Get("/farm/{id}", farmHandler.GetFarmById)
 	r.Post("/farm", farmHandler.CreateFarm)
+	r.Put("/farm/{id}/firmware/{version}", farmHandler.UpdateFarmFirmware)
+	r.Delete("/farm/{id}", farmHandler.DeleteFarmById)
 
 	return r
 }
