@@ -1,0 +1,2 @@
+replace github.com/jackc/pgx/v5/pgtype.Timestamptz string
+replace pgtype.Timestamptz string

@@ -20,6 +20,14 @@ func NewHandler(service Service) *handler {
 	}
 }
 
+// ListFirmwares godoc
+// @Summary      List all firmwares
+// @Description  Returns a list of all firmware versions
+// @Tags         firmwares
+// @Produce      json
+// @Success      200  {array}   repo.Firmware
+// @Failure      500  {string}  string
+// @Router       /firmwares [get]
 func (h *handler) ListFirmwares(w http.ResponseWriter, r *http.Request) {
 	firmwares, err := h.service.GetFirmwares(r.Context())
 	if err != nil {
@@ -30,6 +38,14 @@ func (h *handler) ListFirmwares(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, firmwares)
 }
 
+// GetLastFirmware godoc
+// @Summary      Get the latest firmware
+// @Description  Returns the most recently created firmware
+// @Tags         firmwares
+// @Produce      json
+// @Success      200  {object}  repo.Firmware
+// @Failure      500  {string}  string
+// @Router       /firmwares/last [get]
 func (h *handler) GetLastFirmware(w http.ResponseWriter, r *http.Request) {
 	firmware, err := h.service.GetLastFirmware(r.Context())
 	if err != nil {
@@ -40,6 +56,15 @@ func (h *handler) GetLastFirmware(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, firmware)
 }
 
+// GetFirmwareByVersion godoc
+// @Summary      Get firmware by version
+// @Description  Returns a single firmware by its version string
+// @Tags         firmwares
+// @Produce      json
+// @Param        version  path      string  true  "Firmware version"
+// @Success      200      {object}  repo.Firmware
+// @Failure      500      {string}  string
+// @Router       /firmwares/{version} [get]
 func (h *handler) GetFirmwareByVersion(w http.ResponseWriter, r *http.Request) {
 	version := chi.URLParam(r, "version")
 
@@ -52,6 +77,17 @@ func (h *handler) GetFirmwareByVersion(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, firmware)
 }
 
+// CreateFirmware godoc
+// @Summary      Create a new firmware
+// @Description  Creates a new firmware version with a download URL
+// @Tags         firmwares
+// @Accept       json
+// @Produce      json
+// @Param        firmware  body      repo.CreateFirmwareParams  true  "Firmware to create"
+// @Success      201       {object}  repo.Firmware
+// @Failure      400       {string}  string
+// @Failure      500       {string}  string
+// @Router       /firmwares [post]
 func (h *handler) CreateFirmware(w http.ResponseWriter, r *http.Request) {
 	var firmwareDTO repo.CreateFirmwareParams
 	err := json.Read(r, &firmwareDTO)

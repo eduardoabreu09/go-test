@@ -21,6 +21,14 @@ func NewHandler(service Service) *handler {
 	}
 }
 
+// ListUsers godoc
+// @Summary      List all users
+// @Description  Returns a list of all users
+// @Tags         users
+// @Produce      json
+// @Success      200  {array}   repo.User
+// @Failure      500  {string}  string
+// @Router       /users [get]
 func (h *handler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetUsers(r.Context())
 	if err != nil {
@@ -31,6 +39,16 @@ func (h *handler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, users)
 }
 
+// GetUserById godoc
+// @Summary      Get a user by ID
+// @Description  Returns a single user by ID
+// @Tags         users
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success      200  {object}  repo.User
+// @Failure      400  {string}  string
+// @Failure      500  {string}  string
+// @Router       /users/{id} [get]
 func (h *handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	id, castError := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if castError != nil {
@@ -47,6 +65,17 @@ func (h *handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, user)
 }
 
+// CreateUser godoc
+// @Summary      Create a new user
+// @Description  Creates a new user with name and email
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        user  body      repo.CreateUserParams  true  "User to create"
+// @Success      201   {object}  repo.User
+// @Failure      400   {string}  string
+// @Failure      500   {string}  string
+// @Router       /users [post]
 func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userDTO repo.CreateUserParams
 	err := json.Read(r, &userDTO)

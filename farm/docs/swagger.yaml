@@ -1,0 +1,360 @@
+basePath: /
+definitions:
+  farm.CreateFarmDTO:
+    properties:
+      version:
+        type: string
+    type: object
+  repo.CreateFirmwareParams:
+    properties:
+      url:
+        type: string
+      version:
+        type: string
+    type: object
+  repo.CreateUserParams:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+  repo.Farm:
+    properties:
+      created_at:
+        type: string
+      firmware_version:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  repo.Firmware:
+    properties:
+      created_at:
+        type: string
+      url:
+        type: string
+      version:
+        type: string
+    type: object
+  repo.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for managing farms, users, and firmware.
+  title: Farm API
+  version: "1.0"
+paths:
+  /farm:
+    get:
+      description: Returns a list of all farms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/repo.Farm'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List all farms
+      tags:
+      - farm
+    post:
+      consumes:
+      - application/json
+      description: Creates a new farm with a firmware version
+      parameters:
+      - description: Farm to create
+        in: body
+        name: farm
+        required: true
+        schema:
+          $ref: '#/definitions/farm.CreateFarmDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/repo.Farm'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a new farm
+      tags:
+      - farm
+  /farm/{id}:
+    delete:
+      description: Deletes a farm by its ID
+      parameters:
+      - description: Farm ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete a farm by ID
+      tags:
+      - farm
+    get:
+      description: Returns a single farm by ID
+      parameters:
+      - description: Farm ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repo.Farm'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a farm by ID
+      tags:
+      - farm
+  /farm/{id}/firmware/{version}:
+    put:
+      description: Updates the firmware version of a farm
+      parameters:
+      - description: Farm ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Firmware version
+        in: path
+        name: version
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repo.Farm'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update farm firmware
+      tags:
+      - farm
+  /firmwares:
+    get:
+      description: Returns a list of all firmware versions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/repo.Firmware'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List all firmwares
+      tags:
+      - firmwares
+    post:
+      consumes:
+      - application/json
+      description: Creates a new firmware version with a download URL
+      parameters:
+      - description: Firmware to create
+        in: body
+        name: firmware
+        required: true
+        schema:
+          $ref: '#/definitions/repo.CreateFirmwareParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/repo.Firmware'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a new firmware
+      tags:
+      - firmwares
+  /firmwares/{version}:
+    get:
+      description: Returns a single firmware by its version string
+      parameters:
+      - description: Firmware version
+        in: path
+        name: version
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repo.Firmware'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get firmware by version
+      tags:
+      - firmwares
+  /firmwares/last:
+    get:
+      description: Returns the most recently created firmware
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repo.Firmware'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get the latest firmware
+      tags:
+      - firmwares
+  /users:
+    get:
+      description: Returns a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/repo.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user with name and email
+      parameters:
+      - description: User to create
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/repo.CreateUserParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/repo.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    get:
+      description: Returns a single user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repo.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a user by ID
+      tags:
+      - users
+swagger: "2.0"

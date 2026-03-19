@@ -20,6 +20,18 @@ func NewHandler(service Service) *handler {
 	}
 }
 
+// CreateFarm godoc
+// @Summary      Create a new farm
+// @Description  Creates a new farm with a firmware version
+// @Tags         farm
+// @Accept       json
+// @Produce      json
+// @Param        farm  body      CreateFarmDTO  true  "Farm to create"
+// @Success      201   {object}  repo.Farm
+// @Failure      400   {string}  string
+// @Failure      404   {string}  string
+// @Failure      500   {string}  string
+// @Router       /farm [post]
 func (h *handler) CreateFarm(w http.ResponseWriter, r *http.Request) {
 	var farmDTO CreateFarmDTO
 	err := json.Read(r, &farmDTO)
@@ -45,6 +57,14 @@ func (h *handler) CreateFarm(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusCreated, farm)
 }
 
+// GetFarms godoc
+// @Summary      List all farms
+// @Description  Returns a list of all farms
+// @Tags         farm
+// @Produce      json
+// @Success      200  {array}   repo.Farm
+// @Failure      500  {string}  string
+// @Router       /farm [get]
 func (h *handler) GetFarms(w http.ResponseWriter, r *http.Request) {
 	farms, err := h.service.GetFarms(r.Context())
 
@@ -56,6 +76,16 @@ func (h *handler) GetFarms(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, farms)
 }
 
+// GetFarmById godoc
+// @Summary      Get a farm by ID
+// @Description  Returns a single farm by ID
+// @Tags         farm
+// @Produce      json
+// @Param        id   path      int  true  "Farm ID"
+// @Success      200  {object}  repo.Farm
+// @Failure      400  {string}  string
+// @Failure      500  {string}  string
+// @Router       /farm/{id} [get]
 func (h *handler) GetFarmById(w http.ResponseWriter, r *http.Request) {
 	id, castError := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if castError != nil {
@@ -73,6 +103,15 @@ func (h *handler) GetFarmById(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, farm)
 }
 
+// DeleteFarmById godoc
+// @Summary      Delete a farm by ID
+// @Description  Deletes a farm by its ID
+// @Tags         farm
+// @Param        id   path      int  true  "Farm ID"
+// @Success      204
+// @Failure      400  {string}  string
+// @Failure      500  {string}  string
+// @Router       /farm/{id} [delete]
 func (h *handler) DeleteFarmById(w http.ResponseWriter, r *http.Request) {
 	id, castError := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if castError != nil {
@@ -90,6 +129,18 @@ func (h *handler) DeleteFarmById(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusNoContent, nil)
 }
 
+// UpdateFarmFirmware godoc
+// @Summary      Update farm firmware
+// @Description  Updates the firmware version of a farm
+// @Tags         farm
+// @Produce      json
+// @Param        id       path      int     true  "Farm ID"
+// @Param        version  path      string  true  "Firmware version"
+// @Success      200      {object}  repo.Farm
+// @Failure      400      {string}  string
+// @Failure      404      {string}  string
+// @Failure      500      {string}  string
+// @Router       /farm/{id}/firmware/{version} [put]
 func (h *handler) UpdateFarmFirmware(w http.ResponseWriter, r *http.Request) {
 	id, castError := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if castError != nil {

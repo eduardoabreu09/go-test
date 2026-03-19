@@ -12,6 +12,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
+
+	_ "github.com/eduardoabreu09/farm/docs"
 )
 
 type application struct {
@@ -19,6 +22,11 @@ type application struct {
 	ctx    *pgx.Conn
 }
 
+// @title          Farm API
+// @version        1.0
+// @description    API for managing farms, users, and firmware.
+// @host           localhost:8080
+// @BasePath       /
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
 
@@ -67,6 +75,9 @@ func (app *application) mount() http.Handler {
 	r.Post("/farm", farmHandler.CreateFarm)
 	r.Put("/farm/{id}/firmware/{version}", farmHandler.UpdateFarmFirmware)
 	r.Delete("/farm/{id}", farmHandler.DeleteFarmById)
+
+	// Swagger
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	return r
 }
