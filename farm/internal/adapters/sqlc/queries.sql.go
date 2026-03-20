@@ -9,6 +9,49 @@ import (
 	"context"
 )
 
+const checkUpdate = `-- name: CheckUpdate :one
+SELECT id, status, firmware_version, farm_id, created_at, updated_at FROM update_farm
+WHERE farm_id = $1
+AND status = 'PENDING'
+LIMIT 1
+`
+
+func (q *Queries) CheckUpdate(ctx context.Context, farmID int64) (UpdateFarm, error) {
+	row := q.db.QueryRow(ctx, checkUpdate, farmID)
+	var i UpdateFarm
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.FirmwareVersion,
+		&i.FarmID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const completeUpdate = `-- name: CompleteUpdate :one
+UPDATE update_farm
+  set status = 'COMPLETED',
+  updated_at = now()
+WHERE id = $1
+RETURNING id, status, firmware_version, farm_id, created_at, updated_at
+`
+
+func (q *Queries) CompleteUpdate(ctx context.Context, id int64) (UpdateFarm, error) {
+	row := q.db.QueryRow(ctx, completeUpdate, id)
+	var i UpdateFarm
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.FirmwareVersion,
+		&i.FarmID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createFarm = `-- name: CreateFarm :one
 INSERT INTO farm (
   firmware_version
@@ -24,6 +67,34 @@ func (q *Queries) CreateFarm(ctx context.Context, firmwareVersion string) (Farm,
 	err := row.Scan(
 		&i.ID,
 		&i.FirmwareVersion,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createFarmUpdate = `-- name: CreateFarmUpdate :one
+INSERT INTO update_farm (
+  farm_id, firmware_version 
+) VALUES (
+  $1, $2
+)
+RETURNING id, status, firmware_version, farm_id, created_at, updated_at
+`
+
+type CreateFarmUpdateParams struct {
+	FarmID          int64  `json:"farm_id"`
+	FirmwareVersion string `json:"firmware_version"`
+}
+
+func (q *Queries) CreateFarmUpdate(ctx context.Context, arg CreateFarmUpdateParams) (UpdateFarm, error) {
+	row := q.db.QueryRow(ctx, createFarmUpdate, arg.FarmID, arg.FirmwareVersion)
+	var i UpdateFarm
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.FirmwareVersion,
+		&i.FarmID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

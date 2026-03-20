@@ -3,7 +3,7 @@
 CREATE TYPE download_status AS ENUM ('PENDING', 'ERROR', 'COMPLETED');
 CREATE TABLE IF NOT EXISTS update_farm (
     id BIGSERIAL PRIMARY KEY,
-    status download_status,
+    status download_status DEFAULT 'PENDING',
     firmware_version TEXT NOT NULL,
     farm_id BIGINT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS update_farm (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TYPE download_status;
 DROP TABLE IF EXISTS update_farm;
+DROP TYPE download_status;
 -- +goose StatementEnd
 

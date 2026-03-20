@@ -9,7 +9,10 @@ import (
 )
 
 type Querier interface {
+	CheckUpdate(ctx context.Context, farmID int64) (UpdateFarm, error)
+	CompleteUpdate(ctx context.Context, id int64) (UpdateFarm, error)
 	CreateFarm(ctx context.Context, firmwareVersion string) (Farm, error)
+	CreateFarmUpdate(ctx context.Context, arg CreateFarmUpdateParams) (UpdateFarm, error)
 	CreateFirmware(ctx context.Context, arg CreateFirmwareParams) (Firmware, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteFarmById(ctx context.Context, id int64) error

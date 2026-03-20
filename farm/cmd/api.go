@@ -73,8 +73,11 @@ func (app *application) mount() http.Handler {
 	r.Get("/farm", farmHandler.GetFarms)
 	r.Get("/farm/{id}", farmHandler.GetFarmById)
 	r.Post("/farm", farmHandler.CreateFarm)
+	// TODO Remove this update farm firmaware endpoint, update via transaction later
 	r.Put("/farm/{id}/firmware/{version}", farmHandler.UpdateFarmFirmware)
 	r.Delete("/farm/{id}", farmHandler.DeleteFarmById)
+
+	// Update Farm Endpoints
 
 	// Swagger
 	r.Get("/swagger/*", httpSwagger.WrapHandler)

@@ -52,3 +52,24 @@ UPDATE farm
   updated_at = now()
 WHERE id = $1
 RETURNING *;
+
+-- name: CreateFarmUpdate :one
+INSERT INTO update_farm (
+  farm_id, firmware_version 
+) VALUES (
+  $1, $2
+)
+RETURNING *;
+
+-- name: CheckUpdate :one
+SELECT * FROM update_farm
+WHERE farm_id = $1
+AND status = 'PENDING'
+LIMIT 1;
+
+-- name: CompleteUpdate :one
+UPDATE update_farm
+  set status = 'COMPLETED',
+  updated_at = now()
+WHERE id = $1
+RETURNING *;
