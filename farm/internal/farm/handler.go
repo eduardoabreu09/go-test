@@ -128,38 +128,3 @@ func (h *handler) DeleteFarmById(w http.ResponseWriter, r *http.Request) {
 
 	json.Write(w, http.StatusNoContent, nil)
 }
-
-// UpdateFarmFirmware godoc
-// @Summary      Update farm firmware
-// @Description  Updates the firmware version of a farm
-// @Tags         farm
-// @Produce      json
-// @Param        id       path      int     true  "Farm ID"
-// @Param        version  path      string  true  "Firmware version"
-// @Success      200      {object}  repo.Farm
-// @Failure      400      {string}  string
-// @Failure      404      {string}  string
-// @Failure      500      {string}  string
-// @Router       /farm/{id}/firmware/{version} [put]
-func (h *handler) UpdateFarmFirmware(w http.ResponseWriter, r *http.Request) {
-	id, castError := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if castError != nil {
-		error.BadRequest(w, castError)
-		return
-	}
-	version := chi.URLParam(r, "version")
-
-	farm, err := h.service.UpdateFarmFirmware(r.Context(), id, version)
-	if err != nil {
-		log.Println(err)
-		switch err {
-		case ErrVersionNotFound:
-			error.NotFound(w, err)
-		default:
-			error.InternalServerError(w, err)
-		}
-		return
-	}
-
-	json.Write(w, http.StatusOK, farm)
-}

@@ -37,6 +37,12 @@ func (u *UpdateService) CheckUpdate(ctx context.Context, farm_id int64) (repo.Up
 }
 
 func (u *UpdateService) CompleteUpdate(ctx context.Context, id int64) (repo.UpdateFarm, error) {
+	/*
+		TODO: Add verification
+			- Need the current update to be pending
+			- Cannot have multiple pending updates at the same time
+	*/
+
 	tx, err := u.db.Begin(ctx)
 	if err != nil {
 		return repo.UpdateFarm{}, err

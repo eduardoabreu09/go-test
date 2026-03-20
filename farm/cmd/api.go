@@ -8,6 +8,7 @@ import (
 	repo "github.com/eduardoabreu09/farm/internal/adapters/sqlc"
 	"github.com/eduardoabreu09/farm/internal/farm"
 	"github.com/eduardoabreu09/farm/internal/firmware"
+	updatefarm "github.com/eduardoabreu09/farm/internal/update_farm"
 	"github.com/eduardoabreu09/farm/internal/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -54,6 +55,10 @@ func (app *application) mount() http.Handler {
 	farmService := farm.NewService(repo)
 	farmHandler := farm.NewHandler(farmService)
 
+	// Update
+	updateService := updatefarm.NewService(repo, app.ctx)
+	updateHandler := updatefarm.NewHandler(updateService)
+
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
@@ -70,14 +75,15 @@ func (app *application) mount() http.Handler {
 	r.Post("/firmwares", firmwareHandler.CreateFirmware)
 
 	// Farm Endpoints
-	r.Get("/farm", farmHandler.GetFarms)
-	r.Get("/farm/{id}", farmHandler.GetFarmById)
-	r.Post("/farm", farmHandler.CreateFarm)
-	// TODO Remove this update farm firmaware endpoint, update via transaction later
-	r.Put("/farm/{id}/firmware/{version}", farmHandler.UpdateFarmFirmware)
-	r.Delete("/farm/{id}", farmHandler.DeleteFarmById)
+	r.Get("/farms", farmHandler.GetFarms)
+	r.Get("/farms/{id}", farmHandler.GetFarmById)
+	r.Post("/farms", farmHandler.CreateFarm)
+	r.Delete("/farms/{id}", farmHandler.DeleteFarmById)
 
 	// Update Farm Endpoints
+	r.Get("/updates/{farm_id}/check", updateHandler.CheckPendingUpdate)
+	r.Post("/updates", updateHandler.CreateFarmUpdate)
+	r.Put("/updates/{id}/complete", updateHandler.CompleteUpdate)
 
 	// Swagger
 	r.Get("/swagger/*", httpSwagger.WrapHandler)

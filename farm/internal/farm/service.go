@@ -17,7 +17,6 @@ type Service interface {
 	GetFarms(ctx context.Context) ([]repo.Farm, error)
 	GetFarmById(ctx context.Context, id int64) (repo.Farm, error)
 	DeleteFarmById(ctx context.Context, id int64) error
-	UpdateFarmFirmware(ctx context.Context, id int64, firmware_version string) (repo.Farm, error)
 }
 
 type FarmService struct {
@@ -40,19 +39,6 @@ func (f *FarmService) GetFarmById(ctx context.Context, id int64) (repo.Farm, err
 
 func (f *FarmService) GetFarms(ctx context.Context) ([]repo.Farm, error) {
 	return f.repo.GetFarms(ctx)
-}
-
-func (f *FarmService) UpdateFarmFirmware(ctx context.Context, id int64, firmware_version string) (repo.Farm, error) {
-	if _, err := f.repo.GetFirmwareByVersion(ctx, firmware_version); err != nil {
-		return repo.Farm{}, ErrVersionNotFound
-	}
-
-	updateDTO := repo.UpdateFarmVersionParams{
-		ID:              id,
-		FirmwareVersion: firmware_version,
-	}
-
-	return f.repo.UpdateFarmVersion(ctx, updateDTO)
 }
 
 func (f *FarmService) CreateFarm(ctx context.Context, farmDTO CreateFarmDTO) (repo.Farm, error) {
