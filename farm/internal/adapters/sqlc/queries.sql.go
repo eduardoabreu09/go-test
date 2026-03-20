@@ -224,7 +224,8 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 
 const updateFarmVersion = `-- name: UpdateFarmVersion :one
 UPDATE farm
-  set firmware_version = $2
+  set firmware_version = $2,
+  updated_at = now()
 WHERE id = $1
 RETURNING id, firmware_version, created_at, updated_at
 `

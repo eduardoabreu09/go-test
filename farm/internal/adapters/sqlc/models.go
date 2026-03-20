@@ -5,8 +5,54 @@
 package repo
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type DownloadStatus string
+
+const (
+	DownloadStatusPENDING   DownloadStatus = "PENDING"
+	DownloadStatusERROR     DownloadStatus = "ERROR"
+	DownloadStatusCOMPLETED DownloadStatus = "COMPLETED"
+)
+
+func (e *DownloadStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DownloadStatus(s)
+	case string:
+		*e = DownloadStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DownloadStatus: %T", src)
+	}
+	return nil
+}
+
+type NullDownloadStatus struct {
+	DownloadStatus DownloadStatus `json:"download_status"`
+	Valid          bool           `json:"valid"` // Valid is true if DownloadStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDownloadStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.DownloadStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DownloadStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDownloadStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DownloadStatus), nil
+}
 
 type Farm struct {
 	ID              int64              `json:"id"`
@@ -19,6 +65,15 @@ type Firmware struct {
 	Version   string             `json:"version"`
 	Url       string             `json:"url"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type UpdateFarm struct {
+	ID              int64              `json:"id"`
+	Status          NullDownloadStatus `json:"status"`
+	FirmwareVersion string             `json:"firmware_version"`
+	FarmID          int64              `json:"farm_id"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
 }
 
 type User struct {
