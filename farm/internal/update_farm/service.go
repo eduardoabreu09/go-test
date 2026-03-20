@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	ErrFarmNotFound    = errors.New("Farm not found")
-	ErrVersionNotFound = errors.New("Version not found")
-	ErrTwoUpdates      = errors.New("Cannot have two updates at the same time")
+	ErrUpdateNotFound     = errors.New("Update not found")
+	ErrUpdateIsNotPending = errors.New("Update must be pending to be completed")
+	ErrFarmNotFound       = errors.New("Farm not found")
+	ErrVersionNotFound    = errors.New("Version not found")
+	ErrTwoUpdates         = errors.New("Cannot have two updates at the same time")
 )
 
 type Service interface {
@@ -37,11 +39,14 @@ func (u *UpdateService) CheckUpdate(ctx context.Context, farm_id int64) (repo.Up
 }
 
 func (u *UpdateService) CompleteUpdate(ctx context.Context, id int64) (repo.UpdateFarm, error) {
-	/*
-		TODO: Add verification
-			- Need the current update to be pending
-			- Cannot have multiple pending updates at the same time
-	*/
+	update, err := u.repo.GetUpdateById(ctx, id)
+	if err != nil {
+		return repo.UpdateFarm{}, ErrUpdateNotFound
+	}
+
+	if update.Status.DownloadStatus != repo.DownloadStatusPENDING {
+		return repo.UpdateFarm{}, ErrUpdateIsNotPending
+	}
 
 	tx, err := u.db.Begin(ctx)
 	if err != nil {
@@ -52,7 +57,7 @@ func (u *UpdateService) CompleteUpdate(ctx context.Context, id int64) (repo.Upda
 	qtx := u.repo.WithTx(tx)
 
 	// Change update status to completed
-	update, err := qtx.CompleteUpdate(ctx, id)
+	update, err = qtx.CompleteUpdate(ctx, id)
 	if err != nil {
 		return repo.UpdateFarm{}, err
 	}

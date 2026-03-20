@@ -71,7 +71,15 @@ func (h *handler) CompleteUpdate(w http.ResponseWriter, r *http.Request) {
 
 	update, err := h.service.CompleteUpdate(r.Context(), id)
 	if err != nil {
-		error.InternalServerError(w, err)
+		log.Println(err)
+		switch err {
+		case ErrUpdateNotFound:
+			error.NotFound(w, err)
+		case ErrUpdateIsNotPending:
+			error.BadRequest(w, err)
+		default:
+			error.InternalServerError(w, err)
+		}
 		return
 	}
 

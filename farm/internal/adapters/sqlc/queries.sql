@@ -73,3 +73,8 @@ UPDATE update_farm
   updated_at = now()
 WHERE id = $1
 RETURNING *;
+
+-- name: GetUpdateById :one
+SELECT * FROM update_farm
+WHERE id = $1
+LIMIT 1;

@@ -248,6 +248,26 @@ func (q *Queries) GetLastFirmware(ctx context.Context) (Firmware, error) {
 	return i, err
 }
 
+const getUpdateById = `-- name: GetUpdateById :one
+SELECT id, status, firmware_version, farm_id, created_at, updated_at FROM update_farm
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUpdateById(ctx context.Context, id int64) (UpdateFarm, error) {
+	row := q.db.QueryRow(ctx, getUpdateById, id)
+	var i UpdateFarm
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.FirmwareVersion,
+		&i.FarmID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUserById = `-- name: GetUserById :one
 SELECT id, name, email, created_at FROM users WHERE Id = $1 LIMIT 1
 `
