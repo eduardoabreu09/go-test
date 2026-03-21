@@ -37,3 +37,75 @@ func TestGetUserById(t *testing.T) {
 		t.Fatalf("expected user named Eduardo and no error, got: %v, %s", user.Name, err)
 	}
 }
+
+func TestCreateUserShouldPass(t *testing.T) {
+	service := NewService(&tests.RepoMock{})
+	userDTO := repo.CreateUserParams{
+		Name:  "Eduardo",
+		Email: "eduardoabreu09@gmail.com",
+	}
+	_, err := service.CreateUser(context.Background(), userDTO)
+
+	if err != nil {
+		t.Errorf("expected to not have error %s", err)
+	}
+}
+
+func TestCreateUserEmail(t *testing.T) {
+	service := NewService(&tests.RepoMock{})
+	userDTO := repo.CreateUserParams{
+		Name:  "Eduardo",
+		Email: "eduardoabreu09@gmail.com",
+	}
+	_, err := service.CreateUser(context.Background(), userDTO)
+
+	if err != nil {
+		t.Errorf("expected to not have error %s", err)
+	}
+
+	//Change to invalid email
+	userDTO.Email = "eduardo-com"
+	_, err = service.CreateUser(context.Background(), userDTO)
+
+	if err == nil {
+		t.Errorf("expected to invalid email error %s", err)
+	}
+	if err != ErrEmailIsInvalid {
+		t.Errorf("expected to invalid email error %s", err)
+	}
+
+	// Change to empty email
+	userDTO.Email = ""
+	_, err = service.CreateUser(context.Background(), userDTO)
+
+	if err == nil {
+		t.Errorf("expected to empty email error %s", err)
+	}
+	if err != ErrEmailIsEmpty {
+		t.Errorf("expected to empty email error %s", err)
+	}
+}
+
+func TestCreateUserName(t *testing.T) {
+	service := NewService(&tests.RepoMock{})
+	userDTO := repo.CreateUserParams{
+		Name:  "Eduardo",
+		Email: "eduardoabreu09@gmail.com",
+	}
+	_, err := service.CreateUser(context.Background(), userDTO)
+
+	if err != nil {
+		t.Errorf("expected to not have error %s", err)
+	}
+
+	//Change to empty name
+	userDTO.Name = ""
+	_, err = service.CreateUser(context.Background(), userDTO)
+
+	if err == nil {
+		t.Errorf("expected to empty name error %s", err)
+	}
+	if err != ErrNameIsEmpty {
+		t.Errorf("expected to empty name error %s", err)
+	}
+}

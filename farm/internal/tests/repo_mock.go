@@ -3,8 +3,10 @@ package tests
 import (
 	"context"
 	"errors"
+	"time"
 
 	repo "github.com/eduardoabreu09/farm/internal/adapters/sqlc"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type RepoMock struct {
@@ -41,7 +43,14 @@ func (r *RepoMock) CreateFirmware(ctx context.Context, arg repo.CreateFirmwarePa
 
 // CreateUser implements [repo.Querier].
 func (r *RepoMock) CreateUser(ctx context.Context, arg repo.CreateUserParams) (repo.User, error) {
-	panic("unimplemented")
+	user := repo.User{
+		ID:        2,
+		Name:      arg.Name,
+		Email:     arg.Email,
+		CreatedAt: pgtype.Timestamptz{Time: time.Now()},
+	}
+	Users = append(Users, user)
+	return user, nil
 }
 
 // DeleteFarmById implements [repo.Querier].
