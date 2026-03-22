@@ -30,7 +30,6 @@ func NewService(repo repo.Querier) Service {
 }
 
 func (f *FirmwareService) CreateFirmware(ctx context.Context, firmwareDTO repo.CreateFirmwareParams) (repo.Firmware, error) {
-	// TODO: add firmware object validation
 	if firmwareDTO.Version == "" {
 		return repo.Firmware{}, ErrVersionIsEmpty
 	}

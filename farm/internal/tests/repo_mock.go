@@ -13,7 +13,8 @@ type RepoMock struct {
 }
 
 var (
-	Users = []repo.User{{ID: 1, Name: "Eduardo", Email: "eduardoabreu09@gmail.com"}}
+	Users     = []repo.User{{ID: 1, Name: "Eduardo", Email: "eduardoabreu09@gmail.com"}}
+	Firmwares = []repo.Firmware{{Version: "1.0.0", Url: "test.com"}}
 )
 
 // CheckUpdate implements [repo.Querier].
@@ -38,7 +39,13 @@ func (r *RepoMock) CreateFarmUpdate(ctx context.Context, arg repo.CreateFarmUpda
 
 // CreateFirmware implements [repo.Querier].
 func (r *RepoMock) CreateFirmware(ctx context.Context, arg repo.CreateFirmwareParams) (repo.Firmware, error) {
-	panic("unimplemented")
+	firmware := repo.Firmware{
+		Version:   arg.Version,
+		Url:       arg.Url,
+		CreatedAt: pgtype.Timestamptz{Time: time.Now()},
+	}
+	Firmwares = append(Firmwares, firmware)
+	return firmware, nil
 }
 
 // CreateUser implements [repo.Querier].
