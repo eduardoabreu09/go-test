@@ -109,9 +109,8 @@ func (r *RepoMock) GetFarmById(ctx context.Context, id int64) (repo.Farm, error)
 	return repo.Farm{}, errors.New("farm not found")
 }
 
-// GetFarms implements [repo.Querier].
 func (r *RepoMock) GetFarms(ctx context.Context) ([]repo.Farm, error) {
-	panic("unimplemented")
+	return Farms, nil
 }
 
 func (r *RepoMock) GetFirmwareByVersion(ctx context.Context, version string) (repo.Firmware, error) {
@@ -127,9 +126,14 @@ func (r *RepoMock) GetFirmwares(ctx context.Context) ([]repo.Firmware, error) {
 	return Firmwares, nil
 }
 
-// GetLastFirmware implements [repo.Querier].
 func (r *RepoMock) GetLastFirmware(ctx context.Context) (repo.Firmware, error) {
-	panic("unimplemented")
+	res := Firmwares[0]
+	for _, firmware := range Firmwares {
+		if firmware.Version > res.Version {
+			res = firmware
+		}
+	}
+	return res, nil
 }
 
 func (r *RepoMock) GetUpdateById(ctx context.Context, id int64) (repo.UpdateFarm, error) {
@@ -141,9 +145,15 @@ func (r *RepoMock) GetUpdateById(ctx context.Context, id int64) (repo.UpdateFarm
 	return repo.UpdateFarm{}, errors.New("update not found")
 }
 
-// UpdateFarmVersion implements [repo.Querier].
 func (r *RepoMock) UpdateFarmVersion(ctx context.Context, arg repo.UpdateFarmVersionParams) (repo.Farm, error) {
-	panic("unimplemented")
+	for _, farm := range Farms {
+		if farm.ID == arg.ID {
+			farm.FirmwareVersion = arg.FirmwareVersion
+			farm.UpdatedAt = pgtype.Timestamptz{Time: time.Now()}
+			return farm, nil
+		}
+	}
+	return repo.Farm{}, errors.New("farm not found")
 }
 
 func (r *RepoMock) GetUsers(ctx context.Context) ([]repo.User, error) {
