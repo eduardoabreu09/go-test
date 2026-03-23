@@ -14,30 +14,66 @@ type RepoMock struct {
 
 var (
 	Users     = []repo.User{{ID: 1, Name: "Eduardo", Email: "eduardoabreu09@gmail.com"}}
-	Firmwares = []repo.Firmware{{Version: "1.0.0", Url: "test.com"}}
+	Firmwares = []repo.Firmware{{Version: "1.0.0", Url: "test.com"}, {Version: "1.0.1", Url: "test.com"}}
+	Farms     = []repo.Farm{{ID: 1, FirmwareVersion: "1.0.0"}}
+	Updates   = []repo.UpdateFarm{{ID: 1, FarmID: 1, FirmwareVersion: "1.0.1", Status: repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusPENDING}}}
 )
 
-// CheckUpdate implements [repo.Querier].
 func (r *RepoMock) CheckUpdate(ctx context.Context, farmID int64) (repo.UpdateFarm, error) {
-	panic("unimplemented")
+	for _, update := range Updates {
+		if update.FarmID == farmID && update.Status.DownloadStatus == repo.DownloadStatusPENDING {
+			return update, nil
+		}
+	}
+	return repo.UpdateFarm{}, errors.New("update not found")
 }
 
-// CompleteUpdate implements [repo.Querier].
 func (r *RepoMock) CompleteUpdate(ctx context.Context, id int64) (repo.UpdateFarm, error) {
-	panic("unimplemented")
+	for _, update := range Updates {
+		if update.ID == id {
+			update.Status.DownloadStatus = repo.DownloadStatusCOMPLETED
+			update.UpdatedAt = pgtype.Timestamptz{Time: time.Now()}
+			return update, nil
+		}
+	}
+	return repo.UpdateFarm{}, errors.New("update not found")
 }
 
-// CreateFarm implements [repo.Querier].
 func (r *RepoMock) CreateFarm(ctx context.Context, firmwareVersion string) (repo.Farm, error) {
-	panic("unimplemented")
+	if _, err := r.GetFirmwareByVersion(ctx, firmwareVersion); err != nil {
+		return repo.Farm{}, err
+	}
+
+	farm := repo.Farm{
+		ID:              2,
+		FirmwareVersion: firmwareVersion,
+		CreatedAt:       pgtype.Timestamptz{Time: time.Now()},
+		UpdatedAt:       pgtype.Timestamptz{Time: time.Now()},
+	}
+	Farms = append(Farms, farm)
+	return farm, nil
 }
 
-// CreateFarmUpdate implements [repo.Querier].
 func (r *RepoMock) CreateFarmUpdate(ctx context.Context, arg repo.CreateFarmUpdateParams) (repo.UpdateFarm, error) {
-	panic("unimplemented")
+	if _, err := r.GetFarmById(ctx, arg.FarmID); err != nil {
+		return repo.UpdateFarm{}, err
+	}
+	if _, err := r.GetFirmwareByVersion(ctx, arg.FirmwareVersion); err != nil {
+		return repo.UpdateFarm{}, err
+	}
+
+	update := repo.UpdateFarm{
+		ID:              2,
+		Status:          repo.NullDownloadStatus{DownloadStatus: repo.DownloadStatusPENDING, Valid: true},
+		FirmwareVersion: arg.FirmwareVersion,
+		FarmID:          arg.FarmID,
+		CreatedAt:       pgtype.Timestamptz{Time: time.Now()},
+		UpdatedAt:       pgtype.Timestamptz{Time: time.Now()},
+	}
+	Updates = append(Updates, update)
+	return update, nil
 }
 
-// CreateFirmware implements [repo.Querier].
 func (r *RepoMock) CreateFirmware(ctx context.Context, arg repo.CreateFirmwareParams) (repo.Firmware, error) {
 	firmware := repo.Firmware{
 		Version:   arg.Version,
@@ -48,7 +84,6 @@ func (r *RepoMock) CreateFirmware(ctx context.Context, arg repo.CreateFirmwarePa
 	return firmware, nil
 }
 
-// CreateUser implements [repo.Querier].
 func (r *RepoMock) CreateUser(ctx context.Context, arg repo.CreateUserParams) (repo.User, error) {
 	user := repo.User{
 		ID:        2,
@@ -65,9 +100,13 @@ func (r *RepoMock) DeleteFarmById(ctx context.Context, id int64) error {
 	panic("unimplemented")
 }
 
-// GetFarmById implements [repo.Querier].
 func (r *RepoMock) GetFarmById(ctx context.Context, id int64) (repo.Farm, error) {
-	panic("unimplemented")
+	for _, farm := range Farms {
+		if farm.ID == id {
+			return farm, nil
+		}
+	}
+	return repo.Farm{}, errors.New("farm not found")
 }
 
 // GetFarms implements [repo.Querier].
@@ -75,14 +114,17 @@ func (r *RepoMock) GetFarms(ctx context.Context) ([]repo.Farm, error) {
 	panic("unimplemented")
 }
 
-// GetFirmwareByVersion implements [repo.Querier].
 func (r *RepoMock) GetFirmwareByVersion(ctx context.Context, version string) (repo.Firmware, error) {
-	panic("unimplemented")
+	for _, firmware := range Firmwares {
+		if firmware.Version == version {
+			return firmware, nil
+		}
+	}
+	return repo.Firmware{}, errors.New("firmware not found")
 }
 
-// GetFirmwares implements [repo.Querier].
 func (r *RepoMock) GetFirmwares(ctx context.Context) ([]repo.Firmware, error) {
-	panic("unimplemented")
+	return Firmwares, nil
 }
 
 // GetLastFirmware implements [repo.Querier].
@@ -90,9 +132,13 @@ func (r *RepoMock) GetLastFirmware(ctx context.Context) (repo.Firmware, error) {
 	panic("unimplemented")
 }
 
-// GetUpdateById implements [repo.Querier].
 func (r *RepoMock) GetUpdateById(ctx context.Context, id int64) (repo.UpdateFarm, error) {
-	panic("unimplemented")
+	for _, update := range Updates {
+		if update.ID == id {
+			return update, nil
+		}
+	}
+	return repo.UpdateFarm{}, errors.New("update not found")
 }
 
 // UpdateFarmVersion implements [repo.Querier].
