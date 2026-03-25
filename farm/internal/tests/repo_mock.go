@@ -29,11 +29,11 @@ func (r *RepoMock) CheckUpdate(ctx context.Context, farmID int64) (repo.UpdateFa
 }
 
 func (r *RepoMock) CompleteUpdate(ctx context.Context, id int64) (repo.UpdateFarm, error) {
-	for _, update := range Updates {
+	for i, update := range Updates {
 		if update.ID == id {
-			update.Status.DownloadStatus = repo.DownloadStatusCOMPLETED
-			update.UpdatedAt = pgtype.Timestamptz{Time: time.Now()}
-			return update, nil
+			Updates[i].Status.DownloadStatus = repo.DownloadStatusCOMPLETED
+			Updates[i].UpdatedAt = pgtype.Timestamptz{Time: time.Now()}
+			return Updates[i], nil
 		}
 	}
 	return repo.UpdateFarm{}, errors.New("update not found")
@@ -146,11 +146,11 @@ func (r *RepoMock) GetUpdateById(ctx context.Context, id int64) (repo.UpdateFarm
 }
 
 func (r *RepoMock) UpdateFarmVersion(ctx context.Context, arg repo.UpdateFarmVersionParams) (repo.Farm, error) {
-	for _, farm := range Farms {
+	for i, farm := range Farms {
 		if farm.ID == arg.ID {
-			farm.FirmwareVersion = arg.FirmwareVersion
-			farm.UpdatedAt = pgtype.Timestamptz{Time: time.Now()}
-			return farm, nil
+			Farms[i].FirmwareVersion = arg.FirmwareVersion
+			Farms[i].UpdatedAt = pgtype.Timestamptz{Time: time.Now()}
+			return Farms[i], nil
 		}
 	}
 	return repo.Farm{}, errors.New("farm not found")
