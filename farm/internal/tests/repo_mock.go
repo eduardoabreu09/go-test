@@ -13,11 +13,23 @@ type RepoMock struct {
 }
 
 var (
-	Users     = []repo.User{{ID: 1, Name: "Eduardo", Email: "eduardoabreu09@gmail.com"}}
-	Firmwares = []repo.Firmware{{Version: "1.0.0", Url: "test.com"}, {Version: "1.0.1", Url: "test.com"}}
-	Farms     = []repo.Farm{{ID: 1, FirmwareVersion: "1.0.0"}}
-	Updates   = []repo.UpdateFarm{{ID: 1, FarmID: 1, FirmwareVersion: "1.0.1", Status: repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusPENDING}}}
+	defaultUsers     = []repo.User{{ID: 1, Name: "Eduardo", Email: "eduardoabreu09@gmail.com"}}
+	defaultFirmwares = []repo.Firmware{{Version: "1.0.0", Url: "test.com"}, {Version: "1.0.1", Url: "test.com"}}
+	defaultFarms     = []repo.Farm{{ID: 1, FirmwareVersion: "1.0.0"}}
+	defaultUpdates   = []repo.UpdateFarm{{ID: 1, FarmID: 1, FirmwareVersion: "1.0.1", Status: repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusPENDING}}}
+
+	Users     = append([]repo.User(nil), defaultUsers...)
+	Firmwares = append([]repo.Firmware(nil), defaultFirmwares...)
+	Farms     = append([]repo.Farm(nil), defaultFarms...)
+	Updates   = append([]repo.UpdateFarm(nil), defaultUpdates...)
 )
+
+func ResetRepoMockData() {
+	Users = append([]repo.User(nil), defaultUsers...)
+	Firmwares = append([]repo.Firmware(nil), defaultFirmwares...)
+	Farms = append([]repo.Farm(nil), defaultFarms...)
+	Updates = append([]repo.UpdateFarm(nil), defaultUpdates...)
+}
 
 func (r *RepoMock) CheckUpdate(ctx context.Context, farmID int64) (repo.UpdateFarm, error) {
 	for _, update := range Updates {

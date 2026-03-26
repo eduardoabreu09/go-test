@@ -22,12 +22,33 @@ type Service interface {
 	CompleteUpdate(ctx context.Context, id int64) (repo.UpdateFarm, error)
 }
 
+type txRepo interface {
+	repo.Querier
+	WithTx(tx pgx.Tx) txRepo
+}
+
+type txBeginner interface {
+	Begin(ctx context.Context) (pgx.Tx, error)
+}
+
+type sqlcTxRepo struct {
+	*repo.Queries
+}
+
+func (r sqlcTxRepo) WithTx(tx pgx.Tx) txRepo {
+	return sqlcTxRepo{r.Queries.WithTx(tx)}
+}
+
 type UpdateService struct {
-	repo *repo.Queries
-	db   *pgx.Conn
+	repo txRepo
+	db   txBeginner
 }
 
 func NewService(repo *repo.Queries, db *pgx.Conn) Service {
+	return newService(sqlcTxRepo{repo}, db)
+}
+
+func newService(repo txRepo, db txBeginner) Service {
 	return &UpdateService{
 		repo: repo,
 		db:   db,
