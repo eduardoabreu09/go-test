@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Greetings } from '../components/greetings/greetings';
 import { Counter } from '../components/counter/counter';
 
@@ -9,8 +9,7 @@ import { Counter } from '../components/counter/counter';
   styleUrl: './home.css',
 })
 export class Home {
-  onChange(event: KeyboardEvent) {
-    console.log(`user typed something`);
-    console.log(event.key);
+  handleInput(target: HTMLInputElement) {
+    console.log(target.value);
   }
 }

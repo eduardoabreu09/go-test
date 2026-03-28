@@ -1,4 +1,4 @@
 <p>home works!</p>
 <app-greetings message="Olá olá" />
 <app-counter />
-<input placeholder="Type something..." type="text" (keyup)="onChange($event)" />
+<input placeholder="Type something..." type="text" (input)="handleInput($event.target)" />
