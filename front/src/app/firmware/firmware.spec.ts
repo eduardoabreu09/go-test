@@ -1,19 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 
-import { Header } from './header';
+import { Firmware } from './firmware';
 
-describe('Header', () => {
-  let component: Header;
-  let fixture: ComponentFixture<Header>;
+describe('Firmware', () => {
+  let component: Firmware;
+  let fixture: ComponentFixture<Firmware>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Header],
-      providers: [provideRouter([])],
+      imports: [Firmware],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Header);
+    fixture = TestBed.createComponent(Firmware);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
