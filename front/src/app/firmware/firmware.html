@@ -1,1 +1,7 @@
-<p>firmware works!</p>
+@if (isLoading()) {
+  <p>Loading...</p>
+}
+
+@for (firmware of firmwares(); track firmware.version) {
+  <p>{{ firmware.version }}</p>
+}

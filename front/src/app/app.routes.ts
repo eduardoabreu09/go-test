@@ -13,7 +13,7 @@ export const routes: Routes = [
     path: 'firmware',
     loadComponent: async () => {
       const m = await import('./firmware/firmware');
-      return m.Firmware;
+      return m.FirmwareComponent;
     },
   },
 ];

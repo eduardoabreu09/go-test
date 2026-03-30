@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FirmwareService } from '../services/firmware';
+import { Firmware } from '../model/firmware';
+import { catchError } from 'rxjs';
 
 @Component({
   selector: 'app-firmware',
@@ -6,4 +9,24 @@ import { Component } from '@angular/core';
   templateUrl: './firmware.html',
   styleUrl: './firmware.css',
 })
-export class Firmware {}
+export class FirmwareComponent implements OnInit {
+  firmwareService = inject(FirmwareService);
+  firmwares = signal<Firmware[]>([]);
+  isLoading = signal<boolean>(true);
+
+  ngOnInit(): void {
+    this.firmwareService
+      .getAllFirmwares()
+      .pipe(
+        catchError((err) => {
+          console.log(err);
+          this.isLoading.set(false);
+          throw err;
+        }),
+      )
+      .subscribe((firmwares) => {
+        this.firmwares.set(firmwares);
+        this.isLoading.set(false);
+      });
+  }
+}
