@@ -16,4 +16,11 @@ export const routes: Routes = [
       return m.FirmwareComponent;
     },
   },
+  {
+    path: 'farm',
+    loadComponent: async () => {
+      const m = await import('./farm/farm');
+      return m.FarmComponent;
+    },
+  },
 ];

@@ -1,0 +1,20 @@
+@if (isLoading()) {
+  <p>Loading...</p>
+}
+
+@if (!isLoading() && farms().length === 0) {
+  <p>No farm found!</p>
+}
+
+<div class="flex gap-2">
+  @for (farm of farms(); track farm.id) {
+    <div class="border-black border-2 rounded-md p-2">
+      <div class="flex flex-col gap-2">
+        <span>{{ farm.id }}</span>
+        <span>{{ farm.firmware_version }}</span>
+        <span>{{ farm.created_at | date: 'MM/dd/yyyy' }}</span>
+        <span>{{ farm.updated_at | date: 'MM/dd/yyyy hh:mm' }}</span>
+      </div>
+    </div>
+  }
+</div>
