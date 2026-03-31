@@ -3,8 +3,8 @@
     <p class="eyebrow">Simulator</p>
     <h1>Farm update simulator</h1>
     <p class="hero-copy">
-      Select farms to poll the backend every 30 seconds. When a pending update appears, the simulator waits a random 5 to 20
-      seconds before completing it.
+      Select farms to poll the backend every 30 seconds. When a pending update appears, the
+      simulator waits a random 5 to 20 seconds before completing it.
     </p>
   </section>
 
@@ -15,12 +15,26 @@
         <h2>Simulated farms</h2>
       </div>
       <div class="toolbar">
-        <button class="button" type="button" (click)="startSelected()" [disabled]="selectedCount() === 0">Start selected</button>
-        <button class="button button--secondary" type="button" (click)="stopSelected()" [disabled]="selectedCount() === 0">
+        <button
+          class="button"
+          type="button"
+          (click)="startSelected()"
+          [disabled]="selectedCount() === 0"
+        >
+          Start selected
+        </button>
+        <button
+          class="button button--secondary"
+          type="button"
+          (click)="stopSelected()"
+          [disabled]="selectedCount() === 0"
+        >
           Stop selected
         </button>
         <button class="button button--danger" type="button" (click)="stopAll()">Stop all</button>
-        <button class="button button--ghost" type="button" (click)="loadFarms()">Refresh farms</button>
+        <button class="button button--ghost" type="button" (click)="loadFarms()">
+          Refresh farms
+        </button>
       </div>
     </div>
 
@@ -71,7 +85,8 @@
                       getFarmState(farm.id).status === 'stopped'
                     "
                   >
-                    {{ statusLabel(getFarmState(farm.id).status) }}{{ isRunning(farm.id) ? ' · active' : '' }}
+                    {{ statusLabel(getFarmState(farm.id).status)
+                    }}{{ isRunning(farm.id) ? ' · active' : '' }}
                   </span>
                 </td>
                 <td>

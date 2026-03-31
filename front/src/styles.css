@@ -33,6 +33,10 @@ body {
   font-family: 'Avenir Next', 'Segoe UI Variable', 'Trebuchet MS', sans-serif;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 * {
   box-sizing: border-box;
 }

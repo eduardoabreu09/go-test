@@ -2,11 +2,18 @@
   <div class="site-header__inner">
     <a class="site-header__brand" routerLink="/">{{ title }}</a>
     <nav aria-label="Primary" class="site-header__nav">
-      <a class="site-header__link" routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="is-active">
+      <a
+        class="site-header__link"
+        routerLink="/"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="is-active"
+      >
         Dashboard
       </a>
       <a class="site-header__link" routerLink="/create" routerLinkActive="is-active">Create</a>
-      <a class="site-header__link" routerLink="/simulator" routerLinkActive="is-active">Simulator</a>
+      <a class="site-header__link" routerLink="/simulator" routerLinkActive="is-active"
+        >Simulator</a
+      >
     </nav>
   </div>
 </header>

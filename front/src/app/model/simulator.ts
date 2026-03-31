@@ -1,4 +1,11 @@
-export type SimulatorStatus = 'idle' | 'polling' | 'no-update' | 'updating' | 'completed' | 'error' | 'stopped';
+export type SimulatorStatus =
+  | 'idle'
+  | 'polling'
+  | 'no-update'
+  | 'updating'
+  | 'completed'
+  | 'error'
+  | 'stopped';
 
 export type SimulatorFarmState = {
   farmId: number;

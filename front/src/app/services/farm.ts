@@ -11,12 +11,8 @@ export class FarmService {
   private readonly http = inject(HttpClient);
   private readonly endpoint = `${API_BASE_URL}/farms`;
 
-  list() {
-    return this.http.get<Farm[]>(this.endpoint);
-  }
-
   getAllFarms() {
-    return this.list();
+    return this.http.get<Farm[]>(this.endpoint);
   }
 
   getById(id: number) {

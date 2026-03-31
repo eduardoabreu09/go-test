@@ -34,7 +34,11 @@ export function successState<T>(data: T, httpStatus: number): RequestState<T> {
   };
 }
 
-export function errorState<T>(errorMessage: string, httpStatus: number | null, data: T | null = null): RequestState<T> {
+export function errorState<T>(
+  errorMessage: string,
+  httpStatus: number | null,
+  data: T | null = null,
+): RequestState<T> {
   return {
     status: 'error',
     data,

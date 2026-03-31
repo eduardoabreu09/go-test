@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, timer } from 'rxjs';
 import { getErrorMessage, getErrorStatus } from '../core/http';
@@ -8,6 +15,7 @@ import { createSimulatorFarmState, SimulatorFarmState, SimulatorStatus } from '.
 import { errorState, loadingState, RequestState, successState } from '../model/request-state';
 import { FarmService } from '../services/farm';
 import { UpdateService } from '../services/update';
+import { HttpStatusCode } from '@angular/common/http';
 
 @Component({
   selector: 'app-simulator-page',
@@ -42,15 +50,17 @@ export class SimulatorPage {
     }
 
     this.farmService
-      .list()
+      .getAllFarms()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (farms) => {
           this.syncSimulatorStates(farms);
-          this.farmsState.set(successState(farms, 200));
+          this.farmsState.set(successState(farms, HttpStatusCode.Ok));
         },
         error: (error: unknown) => {
-          this.farmsState.set(errorState(getErrorMessage(error), getErrorStatus(error), this.farmsState().data));
+          this.farmsState.set(
+            errorState(getErrorMessage(error), getErrorStatus(error), this.farmsState().data),
+          );
         },
       });
   }

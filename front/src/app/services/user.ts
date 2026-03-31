@@ -11,7 +11,7 @@ export class UserService {
   private readonly http = inject(HttpClient);
   private readonly endpoint = `${API_BASE_URL}/users`;
 
-  list() {
+  getAllUsers() {
     return this.http.get<User[]>(this.endpoint);
   }
 

@@ -35,7 +35,7 @@ describe('FarmService', () => {
       },
     ];
 
-    service.list().subscribe((farms) => {
+    service.getAllFarms().subscribe((farms) => {
       expect(farms).toEqual(response);
     });
 

@@ -13,6 +13,7 @@ import { FarmService } from '../services/farm';
 import { UpdateService } from '../services/update';
 import { UserService } from '../services/user';
 import { getErrorMessage, getErrorStatus } from '../core/http';
+import { HttpStatusCode } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -64,14 +65,16 @@ export class DashboardPage {
     this.usersState.set(loadingState(this.usersState().data ?? []));
 
     this.userService
-      .list()
+      .getAllUsers()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (users) => {
-          this.usersState.set(successState(users, 200));
+          this.usersState.set(successState(users, HttpStatusCode.Ok));
         },
         error: (error: unknown) => {
-          this.usersState.set(errorState(getErrorMessage(error), getErrorStatus(error), this.usersState().data));
+          this.usersState.set(
+            errorState(getErrorMessage(error), getErrorStatus(error), this.usersState().data),
+          );
         },
       });
   }
@@ -80,14 +83,16 @@ export class DashboardPage {
     this.firmwaresState.set(loadingState(this.firmwaresState().data ?? []));
 
     this.firmwareService
-      .list()
+      .getAllFirmwares()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (firmwares) => {
-          this.firmwaresState.set(successState(firmwares, 200));
+          this.firmwaresState.set(successState(firmwares, HttpStatusCode.Ok));
         },
         error: (error: unknown) => {
-          this.firmwaresState.set(errorState(getErrorMessage(error), getErrorStatus(error), this.firmwaresState().data));
+          this.firmwaresState.set(
+            errorState(getErrorMessage(error), getErrorStatus(error), this.firmwaresState().data),
+          );
         },
       });
   }
@@ -96,14 +101,16 @@ export class DashboardPage {
     this.farmsState.set(loadingState(this.farmsState().data ?? []));
 
     this.farmService
-      .list()
+      .getAllFarms()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (farms) => {
-          this.farmsState.set(successState(farms, 200));
+          this.farmsState.set(successState(farms, HttpStatusCode.Ok));
         },
         error: (error: unknown) => {
-          this.farmsState.set(errorState(getErrorMessage(error), getErrorStatus(error), this.farmsState().data));
+          this.farmsState.set(
+            errorState(getErrorMessage(error), getErrorStatus(error), this.farmsState().data),
+          );
         },
       });
   }
@@ -116,10 +123,12 @@ export class DashboardPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updates) => {
-          this.updatesState.set(successState(updates, 200));
+          this.updatesState.set(successState(updates, HttpStatusCode.Ok));
         },
         error: (error: unknown) => {
-          this.updatesState.set(errorState(getErrorMessage(error), getErrorStatus(error), this.updatesState().data));
+          this.updatesState.set(
+            errorState(getErrorMessage(error), getErrorStatus(error), this.updatesState().data),
+          );
         },
       });
   }

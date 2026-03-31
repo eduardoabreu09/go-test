@@ -108,6 +108,8 @@ describe('CreatePage', () => {
 
     component.updateForm.controls.farmId.setValue(1);
 
-    expect(component.availableTargetFirmwares().map((firmware) => firmware.version)).toEqual(['1.1.0']);
+    expect(component.availableTargetFirmwares().map((firmware) => firmware.version)).toEqual([
+      '1.1.0',
+    ]);
   });
 });

@@ -34,7 +34,7 @@ describe('Firmware', () => {
       },
     ];
 
-    service.list().subscribe((firmwares) => {
+    service.getAllFirmwares().subscribe((firmwares) => {
       expect(firmwares).toEqual(response);
     });
 

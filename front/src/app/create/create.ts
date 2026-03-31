@@ -1,17 +1,31 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { startWith } from 'rxjs';
 import { getErrorMessage, getErrorStatus } from '../core/http';
 import { Farm } from '../model/farm';
 import { Firmware } from '../model/firmware';
-import { errorState, idleState, loadingState, RequestState, successState } from '../model/request-state';
+import {
+  errorState,
+  idleState,
+  loadingState,
+  RequestState,
+  successState,
+} from '../model/request-state';
 import { FarmUpdate } from '../model/update';
 import { User } from '../model/user';
 import { FirmwareService } from '../services/firmware';
 import { FarmService } from '../services/farm';
 import { UpdateService } from '../services/update';
 import { UserService } from '../services/user';
+import { HttpStatusCode } from '@angular/common/http';
 
 type CreateOptionsState = {
   farms: Farm[];
@@ -52,7 +66,9 @@ export class CreatePage {
     firmwareVersion: ['', [Validators.required]],
   });
 
-  readonly optionsState = signal<RequestState<CreateOptionsState>>(loadingState({ farms: [], firmwares: [] }));
+  readonly optionsState = signal<RequestState<CreateOptionsState>>(
+    loadingState({ farms: [], firmwares: [] }),
+  );
   readonly userRequest = signal<RequestState<User>>(idleState());
   readonly firmwareRequest = signal<RequestState<Firmware>>(idleState());
   readonly farmRequest = signal<RequestState<Farm>>(idleState());
@@ -62,11 +78,15 @@ export class CreatePage {
   readonly firmwares = computed(() => this.optionsState().data?.firmwares ?? []);
 
   private readonly selectedFarmId = toSignal(
-    this.updateForm.controls.farmId.valueChanges.pipe(startWith(this.updateForm.controls.farmId.getRawValue())),
+    this.updateForm.controls.farmId.valueChanges.pipe(
+      startWith(this.updateForm.controls.farmId.getRawValue()),
+    ),
     { initialValue: this.updateForm.controls.farmId.getRawValue() },
   );
 
-  readonly selectedFarm = computed(() => this.farms().find((farm) => farm.id === this.selectedFarmId()) ?? null);
+  readonly selectedFarm = computed(
+    () => this.farms().find((farm) => farm.id === this.selectedFarmId()) ?? null,
+  );
 
   readonly availableTargetFirmwares = computed(() => {
     const farm = this.selectedFarm();
@@ -86,31 +106,43 @@ export class CreatePage {
     this.optionsState.set(loadingState(this.optionsState().data));
 
     this.farmService
-      .list()
+      .getAllFarms()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (farms) => {
-          this.optionsState.update((state) => successState({ farms, firmwares: state.data?.firmwares ?? [] }, 200));
+          this.optionsState.update((state) =>
+            successState({ farms, firmwares: state.data?.firmwares ?? [] }, HttpStatusCode.Ok),
+          );
           this.syncUpdateSelection();
         },
         error: (error: unknown) => {
           this.optionsState.update((state) =>
-            errorState(getErrorMessage(error), getErrorStatus(error), state.data ?? { farms: [], firmwares: [] }),
+            errorState(
+              getErrorMessage(error),
+              getErrorStatus(error),
+              state.data ?? { farms: [], firmwares: [] },
+            ),
           );
         },
       });
 
     this.firmwareService
-      .list()
+      .getAllFirmwares()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (firmwares) => {
-          this.optionsState.update((state) => successState({ farms: state.data?.farms ?? [], firmwares }, 200));
+          this.optionsState.update((state) =>
+            successState({ farms: state.data?.farms ?? [], firmwares }, HttpStatusCode.Ok),
+          );
           this.syncUpdateSelection();
         },
         error: (error: unknown) => {
           this.optionsState.update((state) =>
-            errorState(getErrorMessage(error), getErrorStatus(error), state.data ?? { farms: [], firmwares: [] }),
+            errorState(
+              getErrorMessage(error),
+              getErrorStatus(error),
+              state.data ?? { farms: [], firmwares: [] },
+            ),
           );
         },
       });
@@ -133,7 +165,7 @@ export class CreatePage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user) => {
-          this.userRequest.set(successState(user, 201));
+          this.userRequest.set(successState(user, HttpStatusCode.Created));
           this.userForm.reset({ name: '', email: '' });
         },
         error: (error: unknown) => {
@@ -155,7 +187,7 @@ export class CreatePage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (firmware) => {
-          this.firmwareRequest.set(successState(firmware, 201));
+          this.firmwareRequest.set(successState(firmware, HttpStatusCode.Created));
           this.firmwareForm.reset({ version: '', url: '' });
           this.reloadFirmwares();
         },
@@ -178,7 +210,7 @@ export class CreatePage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (farm) => {
-          this.farmRequest.set(successState(farm, 201));
+          this.farmRequest.set(successState(farm, HttpStatusCode.Created));
           this.farmForm.reset({ version: '' });
           this.reloadFarms();
         },
@@ -206,7 +238,7 @@ export class CreatePage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (update) => {
-          this.updateRequest.set(successState(update, 201));
+          this.updateRequest.set(successState(update, HttpStatusCode.Created));
           this.updateForm.reset({ farmId: 0, firmwareVersion: '' });
         },
         error: (error: unknown) => {
@@ -217,16 +249,22 @@ export class CreatePage {
 
   private reloadFarms() {
     this.farmService
-      .list()
+      .getAllFarms()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (farms) => {
-          this.optionsState.update((state) => successState({ farms, firmwares: state.data?.firmwares ?? [] }, 200));
+          this.optionsState.update((state) =>
+            successState({ farms, firmwares: state.data?.firmwares ?? [] }, HttpStatusCode.Ok),
+          );
           this.syncUpdateSelection();
         },
         error: (error: unknown) => {
           this.optionsState.update((state) =>
-            errorState(getErrorMessage(error), getErrorStatus(error), state.data ?? { farms: [], firmwares: [] }),
+            errorState(
+              getErrorMessage(error),
+              getErrorStatus(error),
+              state.data ?? { farms: [], firmwares: [] },
+            ),
           );
         },
       });
@@ -234,16 +272,22 @@ export class CreatePage {
 
   private reloadFirmwares() {
     this.firmwareService
-      .list()
+      .getAllFirmwares()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (firmwares) => {
-          this.optionsState.update((state) => successState({ farms: state.data?.farms ?? [], firmwares }, 200));
+          this.optionsState.update((state) =>
+            successState({ farms: state.data?.farms ?? [], firmwares }, HttpStatusCode.Ok),
+          );
           this.syncUpdateSelection();
         },
         error: (error: unknown) => {
           this.optionsState.update((state) =>
-            errorState(getErrorMessage(error), getErrorStatus(error), state.data ?? { farms: [], firmwares: [] }),
+            errorState(
+              getErrorMessage(error),
+              getErrorStatus(error),
+              state.data ?? { farms: [], firmwares: [] },
+            ),
           );
         },
       });
@@ -260,7 +304,9 @@ export class CreatePage {
     }
 
     const version = this.updateForm.controls.firmwareVersion.getRawValue();
-    const versionIsAvailable = this.availableTargetFirmwares().some((firmware) => firmware.version === version);
+    const versionIsAvailable = this.availableTargetFirmwares().some(
+      (firmware) => firmware.version === version,
+    );
 
     if (!versionIsAvailable) {
       this.updateForm.controls.firmwareVersion.setValue('');

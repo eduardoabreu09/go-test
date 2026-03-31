@@ -11,12 +11,8 @@ export class FirmwareService {
   private readonly http = inject(HttpClient);
   private readonly endpoint = `${API_BASE_URL}/firmwares`;
 
-  list() {
-    return this.http.get<Firmware[]>(this.endpoint);
-  }
-
   getAllFirmwares() {
-    return this.list();
+    return this.http.get<Firmware[]>(this.endpoint);
   }
 
   getByVersion(version: string) {

@@ -31,7 +31,12 @@
 
         <label class="field">
           <span class="field__label">Email</span>
-          <input class="input" formControlName="email" type="email" placeholder="taylor@example.com" />
+          <input
+            class="input"
+            formControlName="email"
+            type="email"
+            placeholder="taylor@example.com"
+          />
         </label>
         @if (userForm.controls.email.invalid && userForm.controls.email.touched) {
           <p class="field__error">Enter a valid email address.</p>
@@ -43,7 +48,9 @@
       </form>
 
       @if (userRequest().status === 'success' && userRequest().data; as createdUser) {
-        <div class="feedback feedback--success">Created user #{{ createdUser.id }} for {{ createdUser.email }}.</div>
+        <div class="feedback feedback--success">
+          Created user #{{ createdUser.id }} for {{ createdUser.email }}.
+        </div>
       }
       @if (userRequest().status === 'error') {
         <div class="feedback feedback--error">{{ userRequest().errorMessage }}</div>
@@ -58,7 +65,12 @@
         </div>
       </div>
 
-      <form class="form-stack" [formGroup]="firmwareForm" (ngSubmit)="submitFirmwareForm()" novalidate>
+      <form
+        class="form-stack"
+        [formGroup]="firmwareForm"
+        (ngSubmit)="submitFirmwareForm()"
+        novalidate
+      >
         <label class="field">
           <span class="field__label">Version</span>
           <input class="input" formControlName="version" type="text" placeholder="1.2.0" />
@@ -69,7 +81,12 @@
 
         <label class="field">
           <span class="field__label">Download URL</span>
-          <input class="input" formControlName="url" type="url" placeholder="https://cdn.example.com/fw-1.2.0.bin" />
+          <input
+            class="input"
+            formControlName="url"
+            type="url"
+            placeholder="https://cdn.example.com/fw-1.2.0.bin"
+          />
         </label>
         @if (firmwareForm.controls.url.invalid && firmwareForm.controls.url.touched) {
           <p class="field__error">Enter a download URL.</p>
@@ -81,7 +98,9 @@
       </form>
 
       @if (firmwareRequest().status === 'success' && firmwareRequest().data; as createdFirmware) {
-        <div class="feedback feedback--success">Created firmware {{ createdFirmware.version }}.</div>
+        <div class="feedback feedback--success">
+          Created firmware {{ createdFirmware.version }}.
+        </div>
       }
       @if (firmwareRequest().status === 'error') {
         <div class="feedback feedback--error">{{ firmwareRequest().errorMessage }}</div>
@@ -114,7 +133,11 @@
           <p class="field__hint">Create at least one firmware before creating a farm.</p>
         }
 
-        <button class="button" type="submit" [disabled]="farmRequest().status === 'loading' || firmwares().length === 0">
+        <button
+          class="button"
+          type="submit"
+          [disabled]="farmRequest().status === 'loading' || firmwares().length === 0"
+        >
           {{ farmRequest().status === 'loading' ? 'Creating farm...' : 'Create farm' }}
         </button>
       </form>
@@ -140,10 +163,17 @@
       <form class="form-stack" [formGroup]="updateForm" (ngSubmit)="submitUpdateForm()" novalidate>
         <label class="field">
           <span class="field__label">Farm</span>
-          <select class="input" formControlName="farmId" [disabled]="farms().length === 0" (change)="onUpdateFarmChange()">
+          <select
+            class="input"
+            formControlName="farmId"
+            [disabled]="farms().length === 0"
+            (change)="onUpdateFarmChange()"
+          >
             <option [ngValue]="0">Select a farm</option>
             @for (farm of farms(); track farm.id) {
-              <option [ngValue]="farm.id">Farm #{{ farm.id }} · current {{ farm.firmware_version }}</option>
+              <option [ngValue]="farm.id">
+                Farm #{{ farm.id }} · current {{ farm.firmware_version }}
+              </option>
             }
           </select>
         </label>
@@ -168,12 +198,16 @@
             }
           </select>
         </label>
-        @if (updateForm.controls.firmwareVersion.invalid && updateForm.controls.firmwareVersion.touched) {
+        @if (
+          updateForm.controls.firmwareVersion.invalid && updateForm.controls.firmwareVersion.touched
+        ) {
           <p class="field__error">Select a target firmware version.</p>
         }
 
         @if (selectedFarm() !== null && availableTargetFirmwares().length === 0) {
-          <p class="field__hint">No alternative firmware is currently available for the selected farm.</p>
+          <p class="field__hint">
+            No alternative firmware is currently available for the selected farm.
+          </p>
         }
         @if (farms().length === 0) {
           <p class="field__hint">Create a farm before creating an update request.</p>
@@ -182,7 +216,11 @@
         <button
           class="button"
           type="submit"
-          [disabled]="updateRequest().status === 'loading' || farms().length === 0 || availableTargetFirmwares().length === 0"
+          [disabled]="
+            updateRequest().status === 'loading' ||
+            farms().length === 0 ||
+            availableTargetFirmwares().length === 0
+          "
         >
           {{ updateRequest().status === 'loading' ? 'Creating update...' : 'Create update' }}
         </button>

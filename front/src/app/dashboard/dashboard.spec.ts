@@ -28,12 +28,25 @@ describe('DashboardPage', () => {
   it('should load users, firmwares, farms, and pending updates on init', () => {
     fixture.detectChanges();
 
-    httpController.expectOne(`${API_BASE_URL}/users`).flush([
-      { id: 1, name: 'Eduardo', email: 'eduardo@example.com', created_at: '2026-01-01T00:00:00Z' },
-    ]);
-    httpController.expectOne(`${API_BASE_URL}/firmwares`).flush([
-      { version: '1.0.0', url: 'https://cdn.example.com/1.0.0.bin', created_at: '2026-01-01T00:00:00Z' },
-    ]);
+    httpController
+      .expectOne(`${API_BASE_URL}/users`)
+      .flush([
+        {
+          id: 1,
+          name: 'Eduardo',
+          email: 'eduardo@example.com',
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      ]);
+    httpController
+      .expectOne(`${API_BASE_URL}/firmwares`)
+      .flush([
+        {
+          version: '1.0.0',
+          url: 'https://cdn.example.com/1.0.0.bin',
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      ]);
     httpController.expectOne(`${API_BASE_URL}/farms`).flush([
       {
         id: 1,
