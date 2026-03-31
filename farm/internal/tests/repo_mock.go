@@ -157,6 +157,18 @@ func (r *RepoMock) GetUpdateById(ctx context.Context, id int64) (repo.UpdateFarm
 	return repo.UpdateFarm{}, errors.New("update not found")
 }
 
+func (r *RepoMock) GetUpdatesByStatus(ctx context.Context, status repo.NullDownloadStatus) ([]repo.UpdateFarm, error) {
+	filteredUpdates := make([]repo.UpdateFarm, 0, len(Updates))
+
+	for _, update := range Updates {
+		if update.Status.Valid == status.Valid && update.Status.DownloadStatus == status.DownloadStatus {
+			filteredUpdates = append(filteredUpdates, update)
+		}
+	}
+
+	return filteredUpdates, nil
+}
+
 func (r *RepoMock) UpdateFarmVersion(ctx context.Context, arg repo.UpdateFarmVersionParams) (repo.Farm, error) {
 	for i, farm := range Farms {
 		if farm.ID == arg.ID {

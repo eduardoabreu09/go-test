@@ -22,6 +22,7 @@ type Querier interface {
 	GetFirmwares(ctx context.Context) ([]Firmware, error)
 	GetLastFirmware(ctx context.Context) (Firmware, error)
 	GetUpdateById(ctx context.Context, id int64) (UpdateFarm, error)
+	GetUpdatesByStatus(ctx context.Context, status NullDownloadStatus) ([]UpdateFarm, error)
 	GetUserById(ctx context.Context, id int64) (User, error)
 	GetUsers(ctx context.Context) ([]User, error)
 	UpdateFarmVersion(ctx context.Context, arg UpdateFarmVersionParams) (Farm, error)

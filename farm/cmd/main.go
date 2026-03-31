@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/eduardoabreu09/farm/internal/env"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
@@ -24,17 +24,17 @@ func main() {
 	slog.SetDefault(logger)
 
 	// Database
-	conn, err := pgx.Connect(ctx, cfg.db.connectionString)
+	pool, err := pgxpool.New(ctx, cfg.db.connectionString)
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close(ctx)
+	defer pool.Close()
 
 	logger.Info("connect to database", "connectionString", cfg.db.connectionString)
 
 	api := application{
 		config: cfg,
-		ctx:    conn,
+		db:     pool,
 	}
 
 	if err := api.run(api.mount()); err != nil {

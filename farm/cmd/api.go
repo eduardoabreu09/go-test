@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	_ "github.com/eduardoabreu09/farm/docs"
@@ -21,7 +21,7 @@ import (
 
 type application struct {
 	config config
-	ctx    *pgx.Conn
+	db     *pgxpool.Pool
 }
 
 // @title          Farm API
@@ -53,7 +53,7 @@ func (app *application) mount() http.Handler {
 		MaxAge:         300,
 	}))
 
-	repo := repo.New(app.ctx)
+	repo := repo.New(app.db)
 
 	// User
 	userService := user.NewService(repo)
@@ -68,7 +68,7 @@ func (app *application) mount() http.Handler {
 	farmHandler := farm.NewHandler(farmService)
 
 	// Update
-	updateService := updatefarm.NewService(repo, app.ctx)
+	updateService := updatefarm.NewService(repo, app.db)
 	updateHandler := updatefarm.NewHandler(updateService)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -93,6 +93,7 @@ func (app *application) mount() http.Handler {
 	r.Delete("/farms/{id}", farmHandler.DeleteFarmById)
 
 	// Update Farm Endpoints
+	r.Get("/updates", updateHandler.ListUpdatesByStatus)
 	r.Get("/updates/{farm_id}/check", updateHandler.CheckPendingUpdate)
 	r.Post("/updates", updateHandler.CreateFarmUpdate)
 	r.Put("/updates/{id}/complete", updateHandler.CompleteUpdate)

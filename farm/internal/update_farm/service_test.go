@@ -46,6 +46,32 @@ func TestCheckUpdate(t *testing.T) {
 	}
 }
 
+func TestListUpdatesByStatus(t *testing.T) {
+	tests.ResetRepoMockData()
+	tests.Updates = append(tests.Updates, repo.UpdateFarm{
+		ID:              2,
+		FarmID:          1,
+		FirmwareVersion: "1.0.1",
+		Status:          repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusCOMPLETED},
+	})
+
+	service := newTestService()
+
+	updates, err := service.ListUpdatesByStatus(
+		context.Background(),
+		repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusCOMPLETED},
+	)
+	if err != nil {
+		t.Errorf("expected to not have error %s", err)
+	}
+	if len(updates) != 1 {
+		t.Fatalf("expected 1 update, got %d", len(updates))
+	}
+	if updates[0].Status.DownloadStatus != repo.DownloadStatusCOMPLETED {
+		t.Errorf("expected completed update, got %s", updates[0].Status.DownloadStatus)
+	}
+}
+
 func TestCreateFarmUpdateShouldPass(t *testing.T) {
 	tests.ResetRepoMockData()
 	tests.Updates[0].Status.DownloadStatus = repo.DownloadStatusCOMPLETED

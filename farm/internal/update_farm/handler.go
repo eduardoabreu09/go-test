@@ -4,9 +4,10 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	repo "github.com/eduardoabreu09/farm/internal/adapters/sqlc"
-	"github.com/eduardoabreu09/farm/internal/error"
+	apperror "github.com/eduardoabreu09/farm/internal/error"
 	"github.com/eduardoabreu09/farm/internal/json"
 	"github.com/go-chi/chi/v5"
 )
@@ -21,11 +22,27 @@ func NewHandler(service Service) *handler {
 	}
 }
 
+func (h *handler) ListUpdatesByStatus(w http.ResponseWriter, r *http.Request) {
+	status, err := parseStatus(r.URL.Query().Get("status"))
+	if err != nil {
+		apperror.BadRequest(w, err)
+		return
+	}
+
+	updates, err := h.service.ListUpdatesByStatus(r.Context(), status)
+	if err != nil {
+		apperror.InternalServerError(w, err)
+		return
+	}
+
+	json.Write(w, http.StatusOK, updates)
+}
+
 func (h *handler) CreateFarmUpdate(w http.ResponseWriter, r *http.Request) {
 	var updateDTO repo.CreateFarmUpdateParams
 	err := json.Read(r, &updateDTO)
 	if err != nil {
-		error.BadRequest(w, err)
+		apperror.BadRequest(w, err)
 		return
 	}
 
@@ -34,11 +51,11 @@ func (h *handler) CreateFarmUpdate(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		switch err {
 		case ErrFarmNotFound, ErrVersionNotFound:
-			error.NotFound(w, err)
+			apperror.NotFound(w, err)
 		case ErrTwoUpdates:
-			error.BadRequest(w, err)
+			apperror.BadRequest(w, err)
 		default:
-			error.InternalServerError(w, err)
+			apperror.InternalServerError(w, err)
 		}
 		return
 	}
@@ -49,13 +66,13 @@ func (h *handler) CreateFarmUpdate(w http.ResponseWriter, r *http.Request) {
 func (h *handler) CheckPendingUpdate(w http.ResponseWriter, r *http.Request) {
 	farm_id, castError := strconv.ParseInt(chi.URLParam(r, "farm_id"), 10, 64)
 	if castError != nil {
-		error.BadRequest(w, castError)
+		apperror.BadRequest(w, castError)
 		return
 	}
 
 	update, err := h.service.CheckUpdate(r.Context(), farm_id)
 	if err != nil {
-		error.InternalServerError(w, err)
+		apperror.InternalServerError(w, err)
 		return
 	}
 
@@ -65,7 +82,7 @@ func (h *handler) CheckPendingUpdate(w http.ResponseWriter, r *http.Request) {
 func (h *handler) CompleteUpdate(w http.ResponseWriter, r *http.Request) {
 	id, castError := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if castError != nil {
-		error.BadRequest(w, castError)
+		apperror.BadRequest(w, castError)
 		return
 	}
 
@@ -74,15 +91,33 @@ func (h *handler) CompleteUpdate(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		switch err {
 		case ErrUpdateNotFound:
-			error.NotFound(w, err)
+			apperror.NotFound(w, err)
 		case ErrUpdateIsNotPending:
-			error.BadRequest(w, err)
+			apperror.BadRequest(w, err)
 		default:
-			error.InternalServerError(w, err)
+			apperror.InternalServerError(w, err)
 		}
 		return
 	}
 
 	json.Write(w, http.StatusOK, update)
 
+}
+
+func parseStatus(rawStatus string) (repo.NullDownloadStatus, error) {
+	status := strings.ToUpper(strings.TrimSpace(rawStatus))
+	if status == "" {
+		return repo.NullDownloadStatus{}, ErrStatusIsRequired
+	}
+
+	switch status {
+	case string(repo.DownloadStatusPENDING):
+		return repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusPENDING}, nil
+	case string(repo.DownloadStatusCOMPLETED):
+		return repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusCOMPLETED}, nil
+	case string(repo.DownloadStatusERROR):
+		return repo.NullDownloadStatus{Valid: true, DownloadStatus: repo.DownloadStatusERROR}, nil
+	default:
+		return repo.NullDownloadStatus{}, ErrStatusIsInvalid
+	}
 }

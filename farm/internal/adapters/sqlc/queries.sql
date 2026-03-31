@@ -78,3 +78,7 @@ RETURNING *;
 SELECT * FROM update_farm
 WHERE id = $1
 LIMIT 1;
+
+-- name: GetUpdatesByStatus :many
+SELECT * FROM update_farm
+WHERE status = $1;

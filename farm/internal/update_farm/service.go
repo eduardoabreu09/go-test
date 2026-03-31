@@ -14,12 +14,15 @@ var (
 	ErrFarmNotFound       = errors.New("Farm not found")
 	ErrVersionNotFound    = errors.New("Version not found")
 	ErrTwoUpdates         = errors.New("Cannot have two updates at the same time")
+	ErrStatusIsRequired   = errors.New("Status is required")
+	ErrStatusIsInvalid    = errors.New("Status is invalid")
 )
 
 type Service interface {
 	CreateFarmUpdate(ctx context.Context, updateDTO repo.CreateFarmUpdateParams) (repo.UpdateFarm, error)
 	CheckUpdate(ctx context.Context, farm_id int64) (repo.UpdateFarm, error)
 	CompleteUpdate(ctx context.Context, id int64) (repo.UpdateFarm, error)
+	ListUpdatesByStatus(ctx context.Context, status repo.NullDownloadStatus) ([]repo.UpdateFarm, error)
 }
 
 type txRepo interface {
@@ -44,7 +47,7 @@ type UpdateService struct {
 	db   txBeginner
 }
 
-func NewService(repo *repo.Queries, db *pgx.Conn) Service {
+func NewService(repo *repo.Queries, db txBeginner) Service {
 	return newService(sqlcTxRepo{repo}, db)
 }
 
@@ -57,6 +60,10 @@ func newService(repo txRepo, db txBeginner) Service {
 
 func (u *UpdateService) CheckUpdate(ctx context.Context, farm_id int64) (repo.UpdateFarm, error) {
 	return u.repo.CheckUpdate(ctx, farm_id)
+}
+
+func (u *UpdateService) ListUpdatesByStatus(ctx context.Context, status repo.NullDownloadStatus) ([]repo.UpdateFarm, error) {
+	return u.repo.GetUpdatesByStatus(ctx, status)
 }
 
 func (u *UpdateService) CompleteUpdate(ctx context.Context, id int64) (repo.UpdateFarm, error) {

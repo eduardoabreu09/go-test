@@ -268,6 +268,38 @@ func (q *Queries) GetUpdateById(ctx context.Context, id int64) (UpdateFarm, erro
 	return i, err
 }
 
+const getUpdatesByStatus = `-- name: GetUpdatesByStatus :many
+SELECT id, status, firmware_version, farm_id, created_at, updated_at FROM update_farm
+WHERE status = $1
+`
+
+func (q *Queries) GetUpdatesByStatus(ctx context.Context, status NullDownloadStatus) ([]UpdateFarm, error) {
+	rows, err := q.db.Query(ctx, getUpdatesByStatus, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UpdateFarm
+	for rows.Next() {
+		var i UpdateFarm
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.FirmwareVersion,
+			&i.FarmID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserById = `-- name: GetUserById :one
 SELECT id, name, email, created_at FROM users WHERE Id = $1 LIMIT 1
 `
