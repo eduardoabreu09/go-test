@@ -1,12 +1,12 @@
-<header>
-  <nav class="flex p-4 bg-amber-800 text-white items-center justify-between">
-    <span class="hover:cursor-pointer" routerLink="/">
-      {{ title() }}
-    </span>
-    <ul class="flex gap-8 hover:cursor-pointer">
-      <li routerLink="/">Home</li>
-      <li routerLink="/firmware">Firmware</li>
-      <li routerLink="/farm">Farm</li>
-    </ul>
-  </nav>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-header__brand" routerLink="/">{{ title }}</a>
+    <nav aria-label="Primary" class="site-header__nav">
+      <a class="site-header__link" routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="is-active">
+        Dashboard
+      </a>
+      <a class="site-header__link" routerLink="/create" routerLinkActive="is-active">Create</a>
+      <a class="site-header__link" routerLink="/simulator" routerLinkActive="is-active">Simulator</a>
+    </nav>
+  </div>
 </header>

@@ -1,8 +1,8 @@
 import { Entity } from './shared';
-import { DonwloadStatus } from './status';
+import { DownloadStatusValue } from './status';
 
-export type Update = Entity & {
-  status: DonwloadStatus;
+export type FarmUpdate = Entity & {
+  status: DownloadStatusValue;
   firmware_version: string;
   farm_id: number;
   created_at: string;

@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.simulator-table td:last-child {
+  min-width: 18rem;
+}

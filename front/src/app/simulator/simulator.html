@@ -1,0 +1,92 @@
+<section class="page-shell page-shell--narrow">
+  <section class="hero-card hero-card--compact">
+    <p class="eyebrow">Simulator</p>
+    <h1>Farm update simulator</h1>
+    <p class="hero-copy">
+      Select farms to poll the backend every 30 seconds. When a pending update appears, the simulator waits a random 5 to 20
+      seconds before completing it.
+    </p>
+  </section>
+
+  <section class="panel panel--spacious">
+    <div class="panel-header panel-header--stack">
+      <div>
+        <p class="eyebrow">Selection</p>
+        <h2>Simulated farms</h2>
+      </div>
+      <div class="toolbar">
+        <button class="button" type="button" (click)="startSelected()" [disabled]="selectedCount() === 0">Start selected</button>
+        <button class="button button--secondary" type="button" (click)="stopSelected()" [disabled]="selectedCount() === 0">
+          Stop selected
+        </button>
+        <button class="button button--danger" type="button" (click)="stopAll()">Stop all</button>
+        <button class="button button--ghost" type="button" (click)="loadFarms()">Refresh farms</button>
+      </div>
+    </div>
+
+    @if (farmsState().status === 'error') {
+      <p class="feedback feedback--error">{{ farmsState().errorMessage }}</p>
+    }
+    @if (farmsState().status === 'loading') {
+      <p class="field__hint">Loading farms...</p>
+    }
+    @if (farmsState().status !== 'loading' && (farmsState().data ?? []).length === 0) {
+      <div class="empty-state">No farms are available for simulation.</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table simulator-table">
+          <thead>
+            <tr>
+              <th>Select</th>
+              <th>Farm</th>
+              <th>Firmware</th>
+              <th>Status</th>
+              <th>Last checked</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (farm of farmsState().data ?? []; track farm.id) {
+              <tr>
+                <td>
+                  <input
+                    [checked]="isSelected(farm.id)"
+                    type="checkbox"
+                    [attr.aria-label]="'Select farm ' + farm.id"
+                    (change)="onFarmSelectionChange(farm.id, $event)"
+                  />
+                </td>
+                <td>#{{ farm.id }}</td>
+                <td>{{ farm.firmware_version }}</td>
+                <td>
+                  <span
+                    class="status-pill"
+                    [class.status-pill--success]="getFarmState(farm.id).status === 'completed'"
+                    [class.status-pill--warning]="getFarmState(farm.id).status === 'updating'"
+                    [class.status-pill--danger]="getFarmState(farm.id).status === 'error'"
+                    [class.status-pill--muted]="
+                      getFarmState(farm.id).status === 'idle' ||
+                      getFarmState(farm.id).status === 'polling' ||
+                      getFarmState(farm.id).status === 'no-update' ||
+                      getFarmState(farm.id).status === 'stopped'
+                    "
+                  >
+                    {{ statusLabel(getFarmState(farm.id).status) }}{{ isRunning(farm.id) ? ' · active' : '' }}
+                  </span>
+                </td>
+                <td>
+                  @if (getFarmState(farm.id).lastCheckedAt) {
+                    {{ getFarmState(farm.id).lastCheckedAt | date: 'MMM d, y, HH:mm:ss' }}
+                  } @else {
+                    Never
+                  }
+                </td>
+                <td>{{ getFarmState(farm.id).message }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>

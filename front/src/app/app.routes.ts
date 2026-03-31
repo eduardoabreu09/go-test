@@ -3,24 +3,23 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    pathMatch: 'full',
     loadComponent: async () => {
-      const m = await import('./home/home');
-      return m.Home;
+      const m = await import('./dashboard/dashboard');
+      return m.DashboardPage;
     },
   },
   {
-    path: 'firmware',
+    path: 'create',
     loadComponent: async () => {
-      const m = await import('./firmware/firmware');
-      return m.FirmwareComponent;
+      const m = await import('./create/create');
+      return m.CreatePage;
     },
   },
   {
-    path: 'farm',
+    path: 'simulator',
     loadComponent: async () => {
-      const m = await import('./farm/farm');
-      return m.FarmComponent;
+      const m = await import('./simulator/simulator');
+      return m.SimulatorPage;
     },
   },
 ];

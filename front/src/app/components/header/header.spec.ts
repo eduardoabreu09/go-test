@@ -21,4 +21,13 @@ describe('Header', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should not render the explorer navigation item', () => {
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Dashboard');
+    expect(fixture.nativeElement.textContent).toContain('Create');
+    expect(fixture.nativeElement.textContent).toContain('Simulator');
+    expect(fixture.nativeElement.textContent).not.toContain('Explorer');
+  });
 });

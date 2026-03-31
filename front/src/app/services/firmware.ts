@@ -1,15 +1,33 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Firmware } from '../model/firmware';
+import { CreateFirmwarePayload } from '../model/payloads';
+import { API_BASE_URL } from '../core/api.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FirmwareService {
-  http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
+  private readonly endpoint = `${API_BASE_URL}/firmwares`;
+
+  list() {
+    return this.http.get<Firmware[]>(this.endpoint);
+  }
 
   getAllFirmwares() {
-    const url = `http://localhost:8080/firmwares`;
-    return this.http.get<Firmware[]>(url);
+    return this.list();
+  }
+
+  getByVersion(version: string) {
+    return this.http.get<Firmware>(`${this.endpoint}/${version}`);
+  }
+
+  getLast() {
+    return this.http.get<Firmware>(`${this.endpoint}/last`);
+  }
+
+  create(payload: CreateFirmwarePayload) {
+    return this.http.post<Firmware>(this.endpoint, payload);
   }
 }

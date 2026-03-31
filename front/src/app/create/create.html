@@ -1,0 +1,201 @@
+<section class="page-shell page-shell--narrow">
+  <section class="hero-card hero-card--compact">
+    <p class="eyebrow">Create</p>
+    <h1>Create backend records</h1>
+    <p class="hero-copy">
+      Use these forms to seed the API with users, firmware versions, farms, and pending updates.
+    </p>
+  </section>
+
+  @if (optionsState().status === 'error') {
+    <p class="feedback feedback--error">{{ optionsState().errorMessage }}</p>
+  }
+
+  <section class="section-grid section-grid--two">
+    <article class="panel form-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Users</p>
+          <h2>Create user</h2>
+        </div>
+      </div>
+
+      <form class="form-stack" [formGroup]="userForm" (ngSubmit)="submitUserForm()" novalidate>
+        <label class="field">
+          <span class="field__label">Name</span>
+          <input class="input" formControlName="name" type="text" placeholder="Taylor Rivera" />
+        </label>
+        @if (userForm.controls.name.invalid && userForm.controls.name.touched) {
+          <p class="field__error">Enter a name.</p>
+        }
+
+        <label class="field">
+          <span class="field__label">Email</span>
+          <input class="input" formControlName="email" type="email" placeholder="taylor@example.com" />
+        </label>
+        @if (userForm.controls.email.invalid && userForm.controls.email.touched) {
+          <p class="field__error">Enter a valid email address.</p>
+        }
+
+        <button class="button" type="submit" [disabled]="userRequest().status === 'loading'">
+          {{ userRequest().status === 'loading' ? 'Creating user...' : 'Create user' }}
+        </button>
+      </form>
+
+      @if (userRequest().status === 'success' && userRequest().data; as createdUser) {
+        <div class="feedback feedback--success">Created user #{{ createdUser.id }} for {{ createdUser.email }}.</div>
+      }
+      @if (userRequest().status === 'error') {
+        <div class="feedback feedback--error">{{ userRequest().errorMessage }}</div>
+      }
+    </article>
+
+    <article class="panel form-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Firmware</p>
+          <h2>Create firmware</h2>
+        </div>
+      </div>
+
+      <form class="form-stack" [formGroup]="firmwareForm" (ngSubmit)="submitFirmwareForm()" novalidate>
+        <label class="field">
+          <span class="field__label">Version</span>
+          <input class="input" formControlName="version" type="text" placeholder="1.2.0" />
+        </label>
+        @if (firmwareForm.controls.version.invalid && firmwareForm.controls.version.touched) {
+          <p class="field__error">Enter a version.</p>
+        }
+
+        <label class="field">
+          <span class="field__label">Download URL</span>
+          <input class="input" formControlName="url" type="url" placeholder="https://cdn.example.com/fw-1.2.0.bin" />
+        </label>
+        @if (firmwareForm.controls.url.invalid && firmwareForm.controls.url.touched) {
+          <p class="field__error">Enter a download URL.</p>
+        }
+
+        <button class="button" type="submit" [disabled]="firmwareRequest().status === 'loading'">
+          {{ firmwareRequest().status === 'loading' ? 'Creating firmware...' : 'Create firmware' }}
+        </button>
+      </form>
+
+      @if (firmwareRequest().status === 'success' && firmwareRequest().data; as createdFirmware) {
+        <div class="feedback feedback--success">Created firmware {{ createdFirmware.version }}.</div>
+      }
+      @if (firmwareRequest().status === 'error') {
+        <div class="feedback feedback--error">{{ firmwareRequest().errorMessage }}</div>
+      }
+    </article>
+
+    <article class="panel form-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Farms</p>
+          <h2>Create farm</h2>
+        </div>
+      </div>
+
+      <form class="form-stack" [formGroup]="farmForm" (ngSubmit)="submitFarmForm()" novalidate>
+        <label class="field">
+          <span class="field__label">Firmware version</span>
+          <select class="input" formControlName="version" [disabled]="firmwares().length === 0">
+            <option value="">Select a firmware</option>
+            @for (firmware of firmwares(); track firmware.version) {
+              <option [value]="firmware.version">{{ firmware.version }}</option>
+            }
+          </select>
+        </label>
+        @if (farmForm.controls.version.invalid && farmForm.controls.version.touched) {
+          <p class="field__error">Select a firmware version.</p>
+        }
+
+        @if (firmwares().length === 0) {
+          <p class="field__hint">Create at least one firmware before creating a farm.</p>
+        }
+
+        <button class="button" type="submit" [disabled]="farmRequest().status === 'loading' || firmwares().length === 0">
+          {{ farmRequest().status === 'loading' ? 'Creating farm...' : 'Create farm' }}
+        </button>
+      </form>
+
+      @if (farmRequest().status === 'success' && farmRequest().data; as createdFarm) {
+        <div class="feedback feedback--success">
+          Created farm #{{ createdFarm.id }} with firmware {{ createdFarm.firmware_version }}.
+        </div>
+      }
+      @if (farmRequest().status === 'error') {
+        <div class="feedback feedback--error">{{ farmRequest().errorMessage }}</div>
+      }
+    </article>
+
+    <article class="panel form-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Updates</p>
+          <h2>Create update request</h2>
+        </div>
+      </div>
+
+      <form class="form-stack" [formGroup]="updateForm" (ngSubmit)="submitUpdateForm()" novalidate>
+        <label class="field">
+          <span class="field__label">Farm</span>
+          <select class="input" formControlName="farmId" [disabled]="farms().length === 0" (change)="onUpdateFarmChange()">
+            <option [ngValue]="0">Select a farm</option>
+            @for (farm of farms(); track farm.id) {
+              <option [ngValue]="farm.id">Farm #{{ farm.id }} · current {{ farm.firmware_version }}</option>
+            }
+          </select>
+        </label>
+        @if (updateForm.controls.farmId.invalid && updateForm.controls.farmId.touched) {
+          <p class="field__error">Select a farm.</p>
+        }
+
+        @if (selectedFarm(); as farm) {
+          <p class="field__hint">Current firmware: {{ farm.firmware_version }}</p>
+        }
+
+        <label class="field">
+          <span class="field__label">Target firmware</span>
+          <select
+            class="input"
+            formControlName="firmwareVersion"
+            [disabled]="selectedFarm() === null || availableTargetFirmwares().length === 0"
+          >
+            <option value="">Select a target firmware</option>
+            @for (firmware of availableTargetFirmwares(); track firmware.version) {
+              <option [value]="firmware.version">{{ firmware.version }}</option>
+            }
+          </select>
+        </label>
+        @if (updateForm.controls.firmwareVersion.invalid && updateForm.controls.firmwareVersion.touched) {
+          <p class="field__error">Select a target firmware version.</p>
+        }
+
+        @if (selectedFarm() !== null && availableTargetFirmwares().length === 0) {
+          <p class="field__hint">No alternative firmware is currently available for the selected farm.</p>
+        }
+        @if (farms().length === 0) {
+          <p class="field__hint">Create a farm before creating an update request.</p>
+        }
+
+        <button
+          class="button"
+          type="submit"
+          [disabled]="updateRequest().status === 'loading' || farms().length === 0 || availableTargetFirmwares().length === 0"
+        >
+          {{ updateRequest().status === 'loading' ? 'Creating update...' : 'Create update' }}
+        </button>
+      </form>
+
+      @if (updateRequest().status === 'success' && updateRequest().data; as createdUpdate) {
+        <div class="feedback feedback--success">
+          Created update #{{ createdUpdate.id }} for farm #{{ createdUpdate.farm_id }}.
+        </div>
+      }
+      @if (updateRequest().status === 'error') {
+        <div class="feedback feedback--error">{{ updateRequest().errorMessage }}</div>
+      }
+    </article>
+  </section>
+</section>

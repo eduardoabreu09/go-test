@@ -1,0 +1,198 @@
+<section class="page-shell page-shell--narrow">
+  <section class="hero-card hero-card--compact">
+    <p class="eyebrow">Dashboard</p>
+    <h1>Backend data overview</h1>
+    <p class="hero-copy">
+      Review the current users, firmware versions, farms, and status-filtered updates in one place.
+    </p>
+    <div class="hero-actions">
+      <button class="button" type="button" (click)="loadDashboard()">Refresh dashboard</button>
+      <a class="button button--secondary" routerLink="/create">Open create</a>
+      <a class="button button--ghost" routerLink="/simulator">Open simulator</a>
+    </div>
+  </section>
+
+  <section class="panel panel--spacious">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">GET /users</p>
+        <h2>Users</h2>
+      </div>
+    </div>
+
+    @if (usersState().status === 'loading') {
+      <p class="field__hint">Loading users...</p>
+    }
+    @if (usersState().status === 'error') {
+      <p class="feedback feedback--error">{{ usersState().errorMessage }}</p>
+    }
+    @if (usersState().status !== 'loading' && (usersState().data ?? []).length === 0) {
+      <div class="empty-state">No users returned.</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of usersState().data ?? []; track user.id) {
+              <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.created_at | date: 'MMM d, y, HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="panel panel--spacious">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">GET /firmwares</p>
+        <h2>Firmwares</h2>
+      </div>
+    </div>
+
+    @if (firmwaresState().status === 'loading') {
+      <p class="field__hint">Loading firmwares...</p>
+    }
+    @if (firmwaresState().status === 'error') {
+      <p class="feedback feedback--error">{{ firmwaresState().errorMessage }}</p>
+    }
+    @if (firmwaresState().status !== 'loading' && (firmwaresState().data ?? []).length === 0) {
+      <div class="empty-state">No firmwares returned.</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>URL</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (firmware of firmwaresState().data ?? []; track firmware.version) {
+              <tr>
+                <td>{{ firmware.version }}</td>
+                <td class="data-table__truncate">{{ firmware.url }}</td>
+                <td>{{ firmware.created_at | date: 'MMM d, y, HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="panel panel--spacious">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">GET /farms</p>
+        <h2>Farms</h2>
+      </div>
+    </div>
+
+    @if (farmsState().status === 'loading') {
+      <p class="field__hint">Loading farms...</p>
+    }
+    @if (farmsState().status === 'error') {
+      <p class="feedback feedback--error">{{ farmsState().errorMessage }}</p>
+    }
+    @if (farmsState().status !== 'loading' && (farmsState().data ?? []).length === 0) {
+      <div class="empty-state">No farms returned.</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Firmware</th>
+              <th>Created</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (farm of farmsState().data ?? []; track farm.id) {
+              <tr>
+                <td>{{ farm.id }}</td>
+                <td>{{ farm.firmware_version }}</td>
+                <td>{{ farm.created_at | date: 'MMM d, y, HH:mm' }}</td>
+                <td>{{ farm.updated_at | date: 'MMM d, y, HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="panel panel--spacious">
+    <div class="panel-header panel-header--stack">
+      <div>
+        <p class="eyebrow">GET /updates?status={{ selectedUpdateStatus() }}</p>
+        <h2>Updates</h2>
+      </div>
+
+      <label class="dashboard-filter">
+        <span class="field__label">Status filter</span>
+        <select
+          #statusSelect
+          class="input dashboard-filter__input"
+          [value]="selectedUpdateStatus()"
+          (change)="onUpdateStatusChange(statusSelect.value)"
+        >
+          @for (option of updateStatusOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    @if (updatesState().status === 'loading') {
+      <p class="field__hint">Loading updates...</p>
+    }
+    @if (updatesState().status === 'error') {
+      <p class="feedback feedback--error">{{ updatesState().errorMessage }}</p>
+    }
+    @if (updatesState().status !== 'loading' && (updatesState().data ?? []).length === 0) {
+      <div class="empty-state">No {{ selectedUpdateStatus().toLowerCase() }} updates returned.</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Farm ID</th>
+              <th>Firmware Version</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (update of updatesState().data ?? []; track update.id) {
+              <tr>
+                <td>{{ update.id }}</td>
+                <td>{{ update.farm_id }}</td>
+                <td>{{ update.firmware_version }}</td>
+                <td>{{ update.status.valid ? update.status.download_status : 'N/A' }}</td>
+                <td>{{ update.created_at | date: 'MMM d, y, HH:mm' }}</td>
+                <td>{{ update.updated_at | date: 'MMM d, y, HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>

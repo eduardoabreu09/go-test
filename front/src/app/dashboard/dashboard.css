@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.dashboard-filter {
+  min-width: 13rem;
+}
+
+.dashboard-filter__input {
+  min-width: 12rem;
+}
