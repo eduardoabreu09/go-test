@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { errorState, loadingState, RequestState, successState } from '../model/request-state';
@@ -14,10 +21,11 @@ import { UpdateService } from '../services/update';
 import { UserService } from '../services/user';
 import { getErrorMessage, getErrorStatus } from '../core/http';
 import { HttpStatusCode } from '@angular/common/http';
+import { Data, Table } from '../components/table/table';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, Table],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +42,60 @@ export class DashboardPage {
   readonly farmsState = signal<RequestState<Farm[]>>(loadingState([]));
   readonly updatesState = signal<RequestState<FarmUpdate[]>>(loadingState([]));
   readonly selectedUpdateStatus = signal<DownloadStatus>('PENDING');
+  readonly userTableData = computed<Data>(() => {
+    return {
+      title: 'GET /users',
+      label: 'Users',
+      headers: ['ID', 'Name', 'Email', 'Created'],
+      values: new Map(
+        (this.usersState().data ?? []).map((user) => [
+          user.id,
+          [
+            { value: String(user.id), isDate: false },
+            { value: user.name, isDate: false },
+            { value: user.email, isDate: false },
+            { value: user.created_at, isDate: true },
+          ],
+        ]),
+      ),
+    };
+  });
+  readonly firmwareTableData = computed<Data>(() => {
+    return {
+      title: 'GET /firmwares',
+      label: 'Firmwares',
+      headers: ['Version', 'URL', 'Created'],
+      values: new Map(
+        (this.firmwaresState().data ?? []).map((firm, index) => [
+          index,
+          [
+            { value: firm.version, isDate: false },
+            { value: firm.url, isDate: false },
+            { value: firm.created_at, isDate: true },
+          ],
+        ]),
+      ),
+    };
+  });
+
+  readonly farmTableData = computed<Data>(() => {
+    return {
+      title: 'GET /farms',
+      label: 'Farms',
+      headers: ['ID', 'Firmware', 'Created', 'Updated'],
+      values: new Map(
+        (this.farmsState().data ?? []).map((farm) => [
+          farm.id,
+          [
+            { value: farm.id.toString(), isDate: false },
+            { value: farm.firmware_version, isDate: false },
+            { value: farm.created_at, isDate: true },
+            { value: farm.updated_at, isDate: true },
+          ],
+        ]),
+      ),
+    };
+  });
 
   readonly updateStatusOptions: { label: string; value: DownloadStatus }[] = [
     { label: 'Pending', value: 'PENDING' },

@@ -12,129 +12,23 @@
     </div>
   </section>
 
-  <section class="panel panel--spacious">
-    <div class="panel-header">
-      <div>
-        <p class="eyebrow">GET /users</p>
-        <h2>Users</h2>
-      </div>
-    </div>
+  <app-table
+    [data]="userTableData()"
+    [isLoading]="usersState().status === 'loading'"
+    [error]="usersState().errorMessage ?? ''"
+  />
 
-    @if (usersState().status === 'loading') {
-      <p class="field__hint">Loading users...</p>
-    }
-    @if (usersState().status === 'error') {
-      <p class="feedback feedback--error">{{ usersState().errorMessage }}</p>
-    }
-    @if (usersState().status !== 'loading' && (usersState().data ?? []).length === 0) {
-      <div class="empty-state">No users returned.</div>
-    } @else {
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of usersState().data ?? []; track user.id) {
-              <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.created_at | date: 'MMM d, y, HH:mm' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
+  <app-table
+    [data]="firmwareTableData()"
+    [isLoading]="firmwaresState().status === 'loading'"
+    [error]="firmwaresState().errorMessage ?? ''"
+  />
 
-  <section class="panel panel--spacious">
-    <div class="panel-header">
-      <div>
-        <p class="eyebrow">GET /firmwares</p>
-        <h2>Firmwares</h2>
-      </div>
-    </div>
-
-    @if (firmwaresState().status === 'loading') {
-      <p class="field__hint">Loading firmwares...</p>
-    }
-    @if (firmwaresState().status === 'error') {
-      <p class="feedback feedback--error">{{ firmwaresState().errorMessage }}</p>
-    }
-    @if (firmwaresState().status !== 'loading' && (firmwaresState().data ?? []).length === 0) {
-      <div class="empty-state">No firmwares returned.</div>
-    } @else {
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Version</th>
-              <th>URL</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (firmware of firmwaresState().data ?? []; track firmware.version) {
-              <tr>
-                <td>{{ firmware.version }}</td>
-                <td class="data-table__truncate">{{ firmware.url }}</td>
-                <td>{{ firmware.created_at | date: 'MMM d, y, HH:mm' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
-
-  <section class="panel panel--spacious">
-    <div class="panel-header">
-      <div>
-        <p class="eyebrow">GET /farms</p>
-        <h2>Farms</h2>
-      </div>
-    </div>
-
-    @if (farmsState().status === 'loading') {
-      <p class="field__hint">Loading farms...</p>
-    }
-    @if (farmsState().status === 'error') {
-      <p class="feedback feedback--error">{{ farmsState().errorMessage }}</p>
-    }
-    @if (farmsState().status !== 'loading' && (farmsState().data ?? []).length === 0) {
-      <div class="empty-state">No farms returned.</div>
-    } @else {
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Firmware</th>
-              <th>Created</th>
-              <th>Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (farm of farmsState().data ?? []; track farm.id) {
-              <tr>
-                <td>{{ farm.id }}</td>
-                <td>{{ farm.firmware_version }}</td>
-                <td>{{ farm.created_at | date: 'MMM d, y, HH:mm' }}</td>
-                <td>{{ farm.updated_at | date: 'MMM d, y, HH:mm' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
+  <app-table
+    [data]="farmTableData()"
+    [isLoading]="farmsState().status === 'loading'"
+    [error]="farmsState().errorMessage ?? ''"
+  />
 
   <section class="panel panel--spacious">
     <div class="panel-header panel-header--stack">
