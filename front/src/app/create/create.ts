@@ -20,13 +20,12 @@ import {
   successState,
 } from '../model/request-state';
 import { FarmUpdate } from '../model/update';
-import { User } from '../model/user';
 import { FirmwareService } from '../services/firmware';
 import { FarmService } from '../services/farm';
 import { UpdateService } from '../services/update';
-import { UserService } from '../services/user';
 import { HttpStatusCode } from '@angular/common/http';
 import { FormHeader } from '../components/form-header/form-header';
+import { UserForm } from './user-form/user-form';
 
 type CreateOptionsState = {
   farms: Farm[];
@@ -35,23 +34,17 @@ type CreateOptionsState = {
 
 @Component({
   selector: 'app-create-page',
-  imports: [ReactiveFormsModule, FormHeader],
+  imports: [ReactiveFormsModule, FormHeader, UserForm],
   templateUrl: './create.html',
   styleUrl: './create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreatePage {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly userService = inject(UserService);
   private readonly firmwareService = inject(FirmwareService);
   private readonly farmService = inject(FarmService);
   private readonly updateService = inject(UpdateService);
   private readonly destroyRef = inject(DestroyRef);
-
-  readonly userForm = this.formBuilder.nonNullable.group({
-    name: ['', [Validators.required, Validators.maxLength(120)]],
-    email: ['', [Validators.required, Validators.email]],
-  });
 
   readonly firmwareForm = this.formBuilder.nonNullable.group({
     version: ['', [Validators.required, Validators.maxLength(100)]],
@@ -70,7 +63,6 @@ export class CreatePage {
   readonly optionsState = signal<RequestState<CreateOptionsState>>(
     loadingState({ farms: [], firmwares: [] }),
   );
-  readonly userRequest = signal<RequestState<User>>(idleState());
   readonly firmwareRequest = signal<RequestState<Firmware>>(idleState());
   readonly farmRequest = signal<RequestState<Farm>>(idleState());
   readonly updateRequest = signal<RequestState<FarmUpdate>>(idleState());
@@ -151,28 +143,6 @@ export class CreatePage {
 
   onUpdateFarmChange() {
     this.updateForm.controls.firmwareVersion.setValue('');
-  }
-
-  submitUserForm() {
-    if (this.userForm.invalid) {
-      this.userForm.markAllAsTouched();
-      return;
-    }
-
-    this.userRequest.set(loadingState());
-
-    this.userService
-      .create(this.userForm.getRawValue())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (user) => {
-          this.userRequest.set(successState(user, HttpStatusCode.Created));
-          this.userForm.reset({ name: '', email: '' });
-        },
-        error: (error: unknown) => {
-          this.userRequest.set(errorState(getErrorMessage(error), getErrorStatus(error)));
-        },
-      });
   }
 
   submitFirmwareForm() {

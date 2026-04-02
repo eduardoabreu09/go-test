@@ -1,0 +1,30 @@
+<form class="form-stack" [formGroup]="userForm" (ngSubmit)="submitUserForm()" novalidate>
+  <label class="field">
+    <span class="field__label">Name</span>
+    <input class="input" formControlName="name" type="text" placeholder="Taylor Rivera" />
+  </label>
+  @if (userForm.controls.name.invalid && userForm.controls.name.touched) {
+    <p class="field__error">Enter a name.</p>
+  }
+
+  <label class="field">
+    <span class="field__label">Email</span>
+    <input class="input" formControlName="email" type="email" placeholder="taylor@example.com" />
+  </label>
+  @if (userForm.controls.email.invalid && userForm.controls.email.touched) {
+    <p class="field__error">Enter a valid email address.</p>
+  }
+
+  <button class="button" type="submit" [disabled]="userRequest().status === 'loading'">
+    {{ userRequest().status === 'loading' ? 'Creating user...' : 'Create user' }}
+  </button>
+</form>
+
+@if (userRequest().status === 'success' && userRequest().data; as createdUser) {
+  <div class="feedback feedback--success">
+    Created user #{{ createdUser.id }} for {{ createdUser.email }}.
+  </div>
+}
+@if (userRequest().status === 'error') {
+  <div class="feedback feedback--error">{{ userRequest().errorMessage }}</div>
+}

@@ -53,34 +53,6 @@ describe('CreatePage', () => {
     expect(component.firmwares().length).toBe(2);
   });
 
-  it('should submit the user form and reset on success', () => {
-    fixture.detectChanges();
-    httpController.expectOne(`${API_BASE_URL}/farms`).flush([]);
-    httpController.expectOne(`${API_BASE_URL}/firmwares`).flush([]);
-
-    component.userForm.setValue({
-      name: 'Morgan Lee',
-      email: 'morgan@example.com',
-    });
-
-    component.submitUserForm();
-
-    const request = httpController.expectOne(`${API_BASE_URL}/users`);
-    expect(request.request.method).toBe('POST');
-    request.flush({
-      id: 7,
-      name: 'Morgan Lee',
-      email: 'morgan@example.com',
-      created_at: '2026-01-03T00:00:00Z',
-    });
-
-    expect(component.userRequest().status).toBe('success');
-    expect(component.userForm.getRawValue()).toEqual({
-      name: '',
-      email: '',
-    });
-  });
-
   it('should filter the update target firmware list by selected farm', () => {
     fixture.detectChanges();
 

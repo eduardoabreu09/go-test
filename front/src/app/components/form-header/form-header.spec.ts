@@ -12,6 +12,8 @@ describe('FormHeader', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(FormHeader);
+    fixture.componentRef.setInput('title', 'Title');
+    fixture.componentRef.setInput('description', 'Description');
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
