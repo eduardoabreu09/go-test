@@ -13,12 +13,7 @@
 
   <section class="section-grid section-grid--two">
     <article class="panel form-panel">
-      <div class="panel-header">
-        <div>
-          <p class="eyebrow">Users</p>
-          <h2>Create user</h2>
-        </div>
-      </div>
+      <app-form-header title="Users" description="Create user" />
 
       <form class="form-stack" [formGroup]="userForm" (ngSubmit)="submitUserForm()" novalidate>
         <label class="field">
@@ -58,12 +53,7 @@
     </article>
 
     <article class="panel form-panel">
-      <div class="panel-header">
-        <div>
-          <p class="eyebrow">Firmware</p>
-          <h2>Create firmware</h2>
-        </div>
-      </div>
+      <app-form-header title="Firmware" description="Create firmware" />
 
       <form
         class="form-stack"
@@ -108,12 +98,7 @@
     </article>
 
     <article class="panel form-panel">
-      <div class="panel-header">
-        <div>
-          <p class="eyebrow">Farms</p>
-          <h2>Create farm</h2>
-        </div>
-      </div>
+      <app-form-header title="Farms" description="Create farm" />
 
       <form class="form-stack" [formGroup]="farmForm" (ngSubmit)="submitFarmForm()" novalidate>
         <label class="field">
@@ -153,12 +138,7 @@
     </article>
 
     <article class="panel form-panel">
-      <div class="panel-header">
-        <div>
-          <p class="eyebrow">Updates</p>
-          <h2>Create update request</h2>
-        </div>
-      </div>
+      <app-form-header title="Updates" description="Create update request" />
 
       <form class="form-stack" [formGroup]="updateForm" (ngSubmit)="submitUpdateForm()" novalidate>
         <label class="field">

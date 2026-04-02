@@ -26,6 +26,7 @@ import { FarmService } from '../services/farm';
 import { UpdateService } from '../services/update';
 import { UserService } from '../services/user';
 import { HttpStatusCode } from '@angular/common/http';
+import { FormHeader } from '../components/form-header/form-header';
 
 type CreateOptionsState = {
   farms: Farm[];
@@ -34,7 +35,7 @@ type CreateOptionsState = {
 
 @Component({
   selector: 'app-create-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, FormHeader],
   templateUrl: './create.html',
   styleUrl: './create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
