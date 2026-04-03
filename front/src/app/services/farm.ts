@@ -1,8 +1,11 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpStatusCode } from '@angular/common/http';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { Farm } from '../model/farm';
 import { CreateFarmPayload } from '../model/payloads';
 import { API_BASE_URL } from '../core/api.config';
+import { errorState, loadingState, RequestState, successState } from '../model/request-state';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { getErrorMessage, getErrorStatus } from '../core/http';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +13,9 @@ import { API_BASE_URL } from '../core/api.config';
 export class FarmService {
   private readonly http = inject(HttpClient);
   private readonly endpoint = `${API_BASE_URL}/farms`;
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly farmsState = signal<RequestState<Farm[]>>(loadingState([]));
 
   getAllFarms() {
     return this.http.get<Farm[]>(this.endpoint);
@@ -25,5 +31,24 @@ export class FarmService {
 
   deleteFarm(id: number) {
     return this.http.delete<void>(`${this.endpoint}/${id}`);
+  }
+
+  loadFarms() {
+    console.log('Loading Farms...');
+
+    this.farmsState.set(loadingState(this.farmsState().data ?? []));
+
+    this.getAllFarms()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (farms) => {
+          this.farmsState.set(successState(farms, HttpStatusCode.Ok));
+        },
+        error: (error: unknown) => {
+          this.farmsState.set(
+            errorState(getErrorMessage(error), getErrorStatus(error), this.farmsState().data),
+          );
+        },
+      });
   }
 }

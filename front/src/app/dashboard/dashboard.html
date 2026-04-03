@@ -14,20 +14,20 @@
 
   <app-table
     [data]="userTableData()"
-    [isLoading]="usersState().status === 'loading'"
-    [error]="usersState().errorMessage ?? ''"
+    [isLoading]="userService.usersState().status === 'loading'"
+    [error]="userService.usersState().errorMessage ?? ''"
   />
 
   <app-table
     [data]="firmwareTableData()"
-    [isLoading]="firmwaresState().status === 'loading'"
-    [error]="firmwaresState().errorMessage ?? ''"
+    [isLoading]="firmwareService.firmwaresState().status === 'loading'"
+    [error]="firmwareService.firmwaresState().errorMessage ?? ''"
   />
 
   <app-table
     [data]="farmTableData()"
-    [isLoading]="farmsState().status === 'loading'"
-    [error]="farmsState().errorMessage ?? ''"
+    [isLoading]="farmService.farmsState().status === 'loading'"
+    [error]="farmService.farmsState().errorMessage ?? ''"
   />
 
   <section class="panel panel--spacious">
@@ -52,13 +52,16 @@
       </label>
     </div>
 
-    @if (updatesState().status === 'loading') {
+    @if (updateService.updatesState().status === 'loading') {
       <p class="field__hint">Loading updates...</p>
     }
-    @if (updatesState().status === 'error') {
-      <p class="feedback feedback--error">{{ updatesState().errorMessage }}</p>
+    @if (updateService.updatesState().status === 'error') {
+      <p class="feedback feedback--error">{{ updateService.updatesState().errorMessage }}</p>
     }
-    @if (updatesState().status !== 'loading' && (updatesState().data ?? []).length === 0) {
+    @if (
+      updateService.updatesState().status !== 'loading' &&
+      (updateService.updatesState().data ?? []).length === 0
+    ) {
       <div class="empty-state">No {{ selectedUpdateStatus().toLowerCase() }} updates returned.</div>
     } @else {
       <div class="table-wrap">
@@ -74,7 +77,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (update of updatesState().data ?? []; track update.id) {
+            @for (update of updateService.updatesState().data ?? []; track update.id) {
               <tr>
                 <td>{{ update.id }}</td>
                 <td>{{ update.farm_id }}</td>

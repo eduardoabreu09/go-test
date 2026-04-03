@@ -17,7 +17,6 @@ import { getErrorMessage, getErrorStatus } from '../../core/http';
   imports: [ReactiveFormsModule],
   templateUrl: './user-form.html',
   styleUrl: './user-form.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserForm {
   private readonly userService = inject(UserService);

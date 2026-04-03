@@ -3,12 +3,20 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { API_BASE_URL } from '../core/api.config';
+import { FarmService } from '../services/farm';
+import { FirmwareService } from '../services/firmware';
+import { UpdateService } from '../services/update';
+import { UserService } from '../services/user';
 import { DashboardPage } from './dashboard';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let httpController: HttpTestingController;
+  let userService: UserService;
+  let firmwareService: FirmwareService;
+  let farmService: FarmService;
+  let updateService: UpdateService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,6 +25,10 @@ describe('DashboardPage', () => {
     }).compileComponents();
 
     httpController = TestBed.inject(HttpTestingController);
+    userService = TestBed.inject(UserService);
+    firmwareService = TestBed.inject(FirmwareService);
+    farmService = TestBed.inject(FarmService);
+    updateService = TestBed.inject(UpdateService);
     fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;
   });
@@ -28,25 +40,21 @@ describe('DashboardPage', () => {
   it('should load users, firmwares, farms, and pending updates on init', () => {
     fixture.detectChanges();
 
-    httpController
-      .expectOne(`${API_BASE_URL}/users`)
-      .flush([
-        {
-          id: 1,
-          name: 'Eduardo',
-          email: 'eduardo@example.com',
-          created_at: '2026-01-01T00:00:00Z',
-        },
-      ]);
-    httpController
-      .expectOne(`${API_BASE_URL}/firmwares`)
-      .flush([
-        {
-          version: '1.0.0',
-          url: 'https://cdn.example.com/1.0.0.bin',
-          created_at: '2026-01-01T00:00:00Z',
-        },
-      ]);
+    httpController.expectOne(`${API_BASE_URL}/users`).flush([
+      {
+        id: 1,
+        name: 'Eduardo',
+        email: 'eduardo@example.com',
+        created_at: '2026-01-01T00:00:00Z',
+      },
+    ]);
+    httpController.expectOne(`${API_BASE_URL}/firmwares`).flush([
+      {
+        version: '1.0.0',
+        url: 'https://cdn.example.com/1.0.0.bin',
+        created_at: '2026-01-01T00:00:00Z',
+      },
+    ]);
     httpController.expectOne(`${API_BASE_URL}/farms`).flush([
       {
         id: 1,
@@ -66,10 +74,11 @@ describe('DashboardPage', () => {
       },
     ]);
 
-    expect(component.usersState().data).toHaveLength(1);
-    expect(component.firmwaresState().data).toHaveLength(1);
-    expect(component.farmsState().data).toHaveLength(1);
-    expect(component.updatesState().data).toHaveLength(1);
+    expect(userService.usersState().data).toHaveLength(1);
+    expect(firmwareService.firmwaresState().data).toHaveLength(1);
+    expect(farmService.farmsState().data).toHaveLength(1);
+    expect(updateService.updatesState().data).toHaveLength(1);
+    expect(component.userTableData().values.size).toBe(1);
     expect(component.selectedUpdateStatus()).toBe('PENDING');
   });
 
@@ -97,6 +106,6 @@ describe('DashboardPage', () => {
     ]);
 
     expect(component.selectedUpdateStatus()).toBe('COMPLETED');
-    expect(component.updatesState().data?.[0].status.download_status).toBe('COMPLETED');
+    expect(updateService.updatesState().data?.[0].status.download_status).toBe('COMPLETED');
   });
 });
