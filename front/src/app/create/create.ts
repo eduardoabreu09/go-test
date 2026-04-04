@@ -26,6 +26,7 @@ import { UpdateService } from '../services/update';
 import { HttpStatusCode } from '@angular/common/http';
 import { FormHeader } from '../components/form-header/form-header';
 import { UserForm } from './user-form/user-form';
+import { FirmwareForm } from './firmware-form/firmware-form';
 
 type CreateOptionsState = {
   farms: Farm[];
@@ -34,7 +35,7 @@ type CreateOptionsState = {
 
 @Component({
   selector: 'app-create-page',
-  imports: [ReactiveFormsModule, FormHeader, UserForm],
+  imports: [ReactiveFormsModule, FormHeader, UserForm, FirmwareForm],
   templateUrl: './create.html',
   styleUrl: './create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,11 +46,6 @@ export class CreatePage {
   private readonly farmService = inject(FarmService);
   private readonly updateService = inject(UpdateService);
   private readonly destroyRef = inject(DestroyRef);
-
-  readonly firmwareForm = this.formBuilder.nonNullable.group({
-    version: ['', [Validators.required, Validators.maxLength(100)]],
-    url: ['', [Validators.required]],
-  });
 
   readonly farmForm = this.formBuilder.nonNullable.group({
     version: ['', [Validators.required]],
@@ -145,29 +141,6 @@ export class CreatePage {
     this.updateForm.controls.firmwareVersion.setValue('');
   }
 
-  submitFirmwareForm() {
-    if (this.firmwareForm.invalid) {
-      this.firmwareForm.markAllAsTouched();
-      return;
-    }
-
-    this.firmwareRequest.set(loadingState());
-
-    this.firmwareService
-      .create(this.firmwareForm.getRawValue())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (firmware) => {
-          this.firmwareRequest.set(successState(firmware, HttpStatusCode.Created));
-          this.firmwareForm.reset({ version: '', url: '' });
-          this.reloadFirmwares();
-        },
-        error: (error: unknown) => {
-          this.firmwareRequest.set(errorState(getErrorMessage(error), getErrorStatus(error)));
-        },
-      });
-  }
-
   submitFarmForm() {
     if (this.farmForm.invalid) {
       this.farmForm.markAllAsTouched();
@@ -226,29 +199,6 @@ export class CreatePage {
         next: (farms) => {
           this.optionsState.update((state) =>
             successState({ farms, firmwares: state.data?.firmwares ?? [] }, HttpStatusCode.Ok),
-          );
-          this.syncUpdateSelection();
-        },
-        error: (error: unknown) => {
-          this.optionsState.update((state) =>
-            errorState(
-              getErrorMessage(error),
-              getErrorStatus(error),
-              state.data ?? { farms: [], firmwares: [] },
-            ),
-          );
-        },
-      });
-  }
-
-  private reloadFirmwares() {
-    this.firmwareService
-      .getAllFirmwares()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (firmwares) => {
-          this.optionsState.update((state) =>
-            successState({ farms: state.data?.farms ?? [], firmwares }, HttpStatusCode.Ok),
           );
           this.syncUpdateSelection();
         },

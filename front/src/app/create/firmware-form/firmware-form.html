@@ -1,0 +1,33 @@
+<form class="form-stack" [formGroup]="firmwareForm" (ngSubmit)="submitFirmwareForm()" novalidate>
+  <label class="field">
+    <span class="field__label">Version</span>
+    <input class="input" formControlName="version" type="text" placeholder="1.2.0" />
+  </label>
+  @if (firmwareForm.controls.version.invalid && firmwareForm.controls.version.touched) {
+    <p class="field__error">Enter a version.</p>
+  }
+
+  <label class="field">
+    <span class="field__label">Download URL</span>
+    <input
+      class="input"
+      formControlName="url"
+      type="url"
+      placeholder="https://cdn.example.com/fw-1.2.0.bin"
+    />
+  </label>
+  @if (firmwareForm.controls.url.invalid && firmwareForm.controls.url.touched) {
+    <p class="field__error">Enter a download URL.</p>
+  }
+
+  <button class="button" type="submit" [disabled]="firmwareRequest().status === 'loading'">
+    {{ firmwareRequest().status === 'loading' ? 'Creating firmware...' : 'Create firmware' }}
+  </button>
+</form>
+
+@if (firmwareRequest().status === 'success' && firmwareRequest().data; as createdFirmware) {
+  <div class="feedback feedback--success">Created firmware {{ createdFirmware.version }}.</div>
+}
+@if (firmwareRequest().status === 'error') {
+  <div class="feedback feedback--error">{{ firmwareRequest().errorMessage }}</div>
+}
