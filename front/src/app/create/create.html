@@ -7,10 +7,6 @@
     </p>
   </section>
 
-  @if (optionsState().status === 'error') {
-    <p class="feedback feedback--error">{{ optionsState().errorMessage }}</p>
-  }
-
   <section class="section-grid section-grid--two">
     <article class="panel form-panel">
       <app-form-header title="Users" description="Create user" />
@@ -24,42 +20,7 @@
 
     <article class="panel form-panel">
       <app-form-header title="Farms" description="Create farm" />
-
-      <form class="form-stack" [formGroup]="farmForm" (ngSubmit)="submitFarmForm()" novalidate>
-        <label class="field">
-          <span class="field__label">Firmware version</span>
-          <select class="input" formControlName="version" [disabled]="firmwares().length === 0">
-            <option value="">Select a firmware</option>
-            @for (firmware of firmwares(); track firmware.version) {
-              <option [value]="firmware.version">{{ firmware.version }}</option>
-            }
-          </select>
-        </label>
-        @if (farmForm.controls.version.invalid && farmForm.controls.version.touched) {
-          <p class="field__error">Select a firmware version.</p>
-        }
-
-        @if (firmwares().length === 0) {
-          <p class="field__hint">Create at least one firmware before creating a farm.</p>
-        }
-
-        <button
-          class="button"
-          type="submit"
-          [disabled]="farmRequest().status === 'loading' || firmwares().length === 0"
-        >
-          {{ farmRequest().status === 'loading' ? 'Creating farm...' : 'Create farm' }}
-        </button>
-      </form>
-
-      @if (farmRequest().status === 'success' && farmRequest().data; as createdFarm) {
-        <div class="feedback feedback--success">
-          Created farm #{{ createdFarm.id }} with firmware {{ createdFarm.firmware_version }}.
-        </div>
-      }
-      @if (farmRequest().status === 'error') {
-        <div class="feedback feedback--error">{{ farmRequest().errorMessage }}</div>
-      }
+      <app-farm-form />
     </article>
 
     <article class="panel form-panel">

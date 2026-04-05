@@ -10,8 +10,6 @@ import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { startWith } from 'rxjs';
 import { getErrorMessage, getErrorStatus } from '../core/http';
-import { Farm } from '../model/farm';
-import { Firmware } from '../model/firmware';
 import {
   errorState,
   idleState,
@@ -27,15 +25,11 @@ import { HttpStatusCode } from '@angular/common/http';
 import { FormHeader } from '../components/form-header/form-header';
 import { UserForm } from './user-form/user-form';
 import { FirmwareForm } from './firmware-form/firmware-form';
-
-type CreateOptionsState = {
-  farms: Farm[];
-  firmwares: Firmware[];
-};
+import { FarmForm } from './farm-form/farm-form';
 
 @Component({
   selector: 'app-create-page',
-  imports: [ReactiveFormsModule, FormHeader, UserForm, FirmwareForm],
+  imports: [ReactiveFormsModule, FormHeader, UserForm, FirmwareForm, FarmForm],
   templateUrl: './create.html',
   styleUrl: './create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,24 +41,15 @@ export class CreatePage {
   private readonly updateService = inject(UpdateService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly farmForm = this.formBuilder.nonNullable.group({
-    version: ['', [Validators.required]],
-  });
-
   readonly updateForm = this.formBuilder.nonNullable.group({
     farmId: [0, [Validators.min(1)]],
     firmwareVersion: ['', [Validators.required]],
   });
 
-  readonly optionsState = signal<RequestState<CreateOptionsState>>(
-    loadingState({ farms: [], firmwares: [] }),
-  );
-  readonly firmwareRequest = signal<RequestState<Firmware>>(idleState());
-  readonly farmRequest = signal<RequestState<Farm>>(idleState());
   readonly updateRequest = signal<RequestState<FarmUpdate>>(idleState());
 
-  readonly farms = computed(() => this.optionsState().data?.farms ?? []);
-  readonly firmwares = computed(() => this.optionsState().data?.firmwares ?? []);
+  readonly farms = computed(() => this.farmService.farmsState().data ?? []);
+  readonly firmwares = computed(() => this.firmwareService.firmwaresState().data ?? []);
 
   private readonly selectedFarmId = toSignal(
     this.updateForm.controls.farmId.valueChanges.pipe(
@@ -92,76 +77,11 @@ export class CreatePage {
   }
 
   loadOptions() {
-    this.optionsState.set(loadingState(this.optionsState().data));
-
-    this.farmService
-      .getAllFarms()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (farms) => {
-          this.optionsState.update((state) =>
-            successState({ farms, firmwares: state.data?.firmwares ?? [] }, HttpStatusCode.Ok),
-          );
-          this.syncUpdateSelection();
-        },
-        error: (error: unknown) => {
-          this.optionsState.update((state) =>
-            errorState(
-              getErrorMessage(error),
-              getErrorStatus(error),
-              state.data ?? { farms: [], firmwares: [] },
-            ),
-          );
-        },
-      });
-
-    this.firmwareService
-      .getAllFirmwares()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (firmwares) => {
-          this.optionsState.update((state) =>
-            successState({ farms: state.data?.farms ?? [], firmwares }, HttpStatusCode.Ok),
-          );
-          this.syncUpdateSelection();
-        },
-        error: (error: unknown) => {
-          this.optionsState.update((state) =>
-            errorState(
-              getErrorMessage(error),
-              getErrorStatus(error),
-              state.data ?? { farms: [], firmwares: [] },
-            ),
-          );
-        },
-      });
+    this.farmService.loadFarms();
   }
 
   onUpdateFarmChange() {
     this.updateForm.controls.firmwareVersion.setValue('');
-  }
-
-  submitFarmForm() {
-    if (this.farmForm.invalid) {
-      this.farmForm.markAllAsTouched();
-      return;
-    }
-
-    this.farmRequest.set(loadingState());
-
-    this.farmService
-      .create(this.farmForm.getRawValue())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (farm) => {
-          this.farmRequest.set(successState(farm, HttpStatusCode.Created));
-          this.farmForm.reset({ version: '' });
-          this.reloadFarms();
-        },
-        error: (error: unknown) => {
-          this.farmRequest.set(errorState(getErrorMessage(error), getErrorStatus(error)));
-        },
-      });
   }
 
   submitUpdateForm() {
@@ -189,48 +109,5 @@ export class CreatePage {
           this.updateRequest.set(errorState(getErrorMessage(error), getErrorStatus(error)));
         },
       });
-  }
-
-  private reloadFarms() {
-    this.farmService
-      .getAllFarms()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (farms) => {
-          this.optionsState.update((state) =>
-            successState({ farms, firmwares: state.data?.firmwares ?? [] }, HttpStatusCode.Ok),
-          );
-          this.syncUpdateSelection();
-        },
-        error: (error: unknown) => {
-          this.optionsState.update((state) =>
-            errorState(
-              getErrorMessage(error),
-              getErrorStatus(error),
-              state.data ?? { farms: [], firmwares: [] },
-            ),
-          );
-        },
-      });
-  }
-
-  private syncUpdateSelection() {
-    const farmId = this.updateForm.controls.farmId.getRawValue();
-    const farmExists = this.farms().some((farm) => farm.id === farmId);
-
-    if (!farmExists) {
-      this.updateForm.controls.farmId.setValue(0);
-      this.updateForm.controls.firmwareVersion.setValue('');
-      return;
-    }
-
-    const version = this.updateForm.controls.firmwareVersion.getRawValue();
-    const versionIsAvailable = this.availableTargetFirmwares().some(
-      (firmware) => firmware.version === version,
-    );
-
-    if (!versionIsAvailable) {
-      this.updateForm.controls.firmwareVersion.setValue('');
-    }
   }
 }
